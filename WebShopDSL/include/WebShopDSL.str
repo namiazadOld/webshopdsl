@@ -1,0 +1,42 @@
+module WebShopDSL
+
+signature
+  constructors
+                    : Attribute -> Attribute6
+                    : AttributeList -> AttributeList6
+                    : ID -> ID20
+    Attribute       : ID * STRING -> Attribute
+    AttributeList   : List(Attribute6) * Attribute -> AttributeList
+    Email           : SimpleType
+    LongString      : SimpleType
+    Image           : SimpleType
+    Float           : SimpleType
+    Date            : SimpleType
+    Int             : SimpleType
+    String          : SimpleType
+    ListOfSimple    : ID * SimpleType * Option(AttributeList6) -> ListProperty
+    SimpleProperty  : ID * SimpleType * Option(AttributeList6) -> SimpleProperty
+                    : ListProperty -> Property
+                    : SimpleProperty -> Property
+    Product         : ID * List(Property) -> ProductType
+    Sells           : List(ID20) * ID -> Sells
+    ShopDescription : SupportedClause
+    ShopTitle       : SupportedClause
+    ShopLogo        : SupportedClause
+    With            : SupportedClause * STRING -> With
+    Shop            : ID * List(With) * Sells * List(ProductType) -> Start
+                    : String -> STRING
+                    : String -> ID
+
+
+signature
+  constructors
+    Some : a -> Option(a)
+    None : Option(a)
+
+
+signature
+  constructors
+    Cons : a * List(a) -> List(a)
+    Nil  : List(a)
+    Conc : List(a) * List(a) -> List(a)
