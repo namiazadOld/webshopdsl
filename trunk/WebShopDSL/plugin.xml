@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<?eclipse version="3.0"?>
+
+<plugin>
+       <extension point="org.eclipse.imp.runtime.languageDescription">
+          <language extensions="wsp" description="WebShopDSL" language="WebShopDSL" derivedFrom="DynamicRoot" validator="WebShopDSL.WebShopDSLValidator" validatorClass="WebShopDSL.WebShopDSLValidator"></language>
+       </extension>
+       <extension id="WebShopDSL.parser" name="WebShopDSL Parser" point="org.eclipse.imp.runtime.parser">
+          <parser class="WebShopDSL.WebShopDSLParseController" language="WebShopDSL">
+          </parser>
+       </extension>    
+    </plugin>

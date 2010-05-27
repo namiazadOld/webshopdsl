@@ -1,0 +1,20 @@
+
+module WebShopDSL-Builders
+
+imports WebShopDSL-Builders.generated
+
+builders
+                                                                      
+  // This file can be used for custom analysis and builder rules.     
+  //                                                                  
+  // See the imported file for a brief introduction and examples.     
+
+builders
+                                                                                                                 
+  provider                  : include/webshopdsl.ctree                                                           
+                                                                                                                 
+  observer                  : editor-analyze                                                                     
+                                                                                                                               
+  builder                   : "Show abstract syntax"   = generate-aterm (openeditor) (realtime) (meta) (source)  
+                                                                                                                 
+  // on save: generate-java                                                                                      

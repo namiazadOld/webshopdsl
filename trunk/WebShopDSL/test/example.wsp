@@ -1,0 +1,26 @@
+shop BookShop
+{
+	with logo "C:\logo.png"
+	with title "Book Shop"
+	with description "Best Shop"
+	sells { Book, CD }
+}
+
+product type Book
+{
+	name :: LongString (title : "Name", navigable : "true")
+	
+	author :: 
+	{
+		name : String
+		age : Int
+	}   (title : "Name", navigable : "true")
+	
+	price : Float
+	frontImage : Image
+}
+
+product type CD
+{
+	name : Date
+}
