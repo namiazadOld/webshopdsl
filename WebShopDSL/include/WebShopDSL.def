@@ -1,0 +1,85 @@
+definition
+module Common
+
+exports
+
+  lexical syntax
+  
+    [a-zA-Z][a-zA-Z0-9\_]* -> ID
+    "-"? [0-9]+            -> INT
+    
+    "\"" StringChar* "\"" -> STRING
+    ~[\"\n]               -> StringChar
+    "\\\""                -> StringChar
+    BackSlashChar         -> StringChar
+    "\\"                  -> BackSlashChar
+    
+    [\ \t\n\r] -> LAYOUT
+    
+    [\*]                             -> CommentChar
+    "/*" (~[\*] | CommentChar)* "*/" -> LAYOUT
+    "//" ~[\n\r]* ([\n\r] | EOF)     -> LAYOUT
+    
+    -> EOF
+  
+  lexical restrictions
+  
+    %% Ensure greedy matching for lexicals
+  
+    CommentChar   -/- [\/]
+    INT           -/- [0-9]
+    ID            -/- [a-zA-Z0-9\_]
+    
+    %% EOF may not be followed by any char
+    
+    EOF           -/- ~[]
+
+    %% Backslash chars in strings may not be followed by " 
+    
+    BackSlashChar -/- [\"]
+
+  context-free restrictions
+  
+    %% Ensure greedy matching for comments
+
+    LAYOUT? -/- [\ \t\n\r]
+    LAYOUT? -/- [\/].[\/]
+    LAYOUT? -/- [\/].[\*]
+
+module WebShopDSL
+
+imports Common
+
+exports
+
+  context-free start-symbols
+    Start
+
+  context-free syntax
+  
+    "shop" ID "{" With* Sells "}" ProductType*								-> Start {cons ("Shop")}
+    "with" SupportedClause STRING 											-> With {cons ("With")}
+    "logo" 																	-> SupportedClause {cons("ShopLogo")}
+    "title" 																-> SupportedClause {cons("ShopTitle")}
+    "description"															-> SupportedClause {cons("ShopDescription")}
+    "sells" "{" (ID ",")* ID "}"											-> Sells {cons("Sells")}
+    "product type" ID "{" Property* "}"										-> ProductType {cons("Product")}
+    SimpleProperty															-> Property {}
+    ComplexProperty															-> Property {}
+    ListProperty															-> Property {}
+    ID ":" SimpleType ("(" AttributeList ")")?								-> SimpleProperty {cons("SimpleProperty")}
+    ID ":" ComplexType  ("(" AttributeList ")")? 							-> ComplexProperty {cons("ComplexProperty")}
+    ID "::" SimpleType  ("(" AttributeList ")")? 							-> ListProperty {cons("ListOfSimple")}
+    ID "::" ComplexType  ("(" AttributeList ")")? 							-> ListProperty {cons("ListOfComplex")}
+    "String"																-> SimpleType {cons("String")}
+    "Int"																	-> SimpleType {cons("Int")}
+    "Date"																	-> SimpleType {cons("Date")}
+    "Float"																	-> SimpleType {cons("Float")}
+    "Image"																	-> SimpleType {cons("Image")}
+    "LongString"															-> SimpleType {cons("LongString")}
+    "Email"																	-> SimpleType {cons("Email")}
+    
+    
+   	"{" SimpleProperty* "}"										  			-> ComplexType {}
+   	(Attribute ",")*Attribute												-> AttributeList {cons("AttributeList")}
+   	ID ":" STRING															-> Attribute {cons("Attribute")}
