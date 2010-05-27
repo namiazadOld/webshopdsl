@@ -1,0 +1,23 @@
+Shop(
+  "BookShop"
+, [With(ShopLogo(), "\"C:\\logo.png\""), With(ShopTitle(), "\"Book Shop\""), With(ShopDescription(), "\"Best Shop\"")]
+, Sells(["Book"], "CD")
+, [ Product(
+      "Book"
+    , [ ListOfSimple(
+          "name"
+        , LongString()
+        , [AttributeList([Attribute("title", "\"Name\"")], Attribute("navigable", "\"true\""))]
+        )
+      , ListOfComplex(
+          "author"
+        , [SimpleProperty("name", String(), []), SimpleProperty("age", Int(), [])]
+        , [AttributeList([Attribute("title", "\"Name\"")], Attribute("navigable", "\"true\""))]
+        )
+      , SimpleProperty("price", Float(), [])
+      , SimpleProperty("frontImage", Image(), [])
+      ]
+    )
+  , Product("CD", [SimpleProperty("name", Date(), [])])
+  ]
+)
