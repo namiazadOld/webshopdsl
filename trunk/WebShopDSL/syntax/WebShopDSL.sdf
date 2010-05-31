@@ -11,13 +11,14 @@ exports
 
   context-free syntax
   
-    "shop" ID "{" With* Sells "}" ProductType*								-> Start {cons ("Shop")}
+    "shop" ID "{" With* Sells "}" BasicProductType* ProductType* GroupByType? GroupByProperty*-> Start {cons ("Shop")}
     "with" SupportedClause STRING 											-> With {cons ("With")}
     "logo" 																	-> SupportedClause {cons("ShopLogo")}
     "title" 																-> SupportedClause {cons("ShopTitle")}
     "description"															-> SupportedClause {cons("ShopDescription")}
     "sells" "{" (ID ",")* ID "}"											-> Sells {cons("Sells")}
-    "product type" ID "{" Property* "}"										-> ProductType {cons("Product")}
+    "product" "type" ID (":" ID)? "{" Property* "}"							-> ProductType {cons("Product")}
+    "basic" "product" "type" ID (":" ID)? "{" Property* "}"					-> ProductType {cons("BasicProduct")}
     SimpleProperty															-> Property {}
     ComplexProperty															-> Property {}
     ListProperty															-> Property {}
@@ -37,3 +38,5 @@ exports
    	"{" SimpleProperty* "}"										  			-> ComplexType {}
    	(Attribute ",")*Attribute												-> AttributeList {cons("AttributeList")}
    	ID ":" STRING															-> Attribute {cons("Attribute")}
+   	"group" "by" "type"														-> GroupByType {cons ("GroupByType")}
+   	"group" "by" "property" ID												-> GroupByProperty {cons("GroupByProperty")}
