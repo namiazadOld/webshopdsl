@@ -1,0 +1,19 @@
+module generate-wdsl
+	
+	imports include/WebShopDSL
+	  		libstratego-lib
+  			libstratego-gpp
+  			libstratego-aterm
+  			lib/editor-common.generated
+
+	strategies
+		
+		transform-to-wdsl:
+        (selected, position, ast, path, project-path) -> (filename, result-string)
+        with
+          filename := <guarantee-extension(|"yml")> path;
+          result-string := <ws> selected
+
+	rules
+		
+		ws : Shop(shopName, with*, sells, basicType*, productType*, groupByType*, groupByProp*) -> $[shop]

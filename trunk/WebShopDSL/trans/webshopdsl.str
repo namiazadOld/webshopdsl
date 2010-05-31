@@ -1,6 +1,7 @@
 module webshopdsl
 
 imports
+  generate-wdsl
   libstratego-lib
   libstratego-gpp
   libstratego-aterm
