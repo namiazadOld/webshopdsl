@@ -4,10 +4,15 @@ Shop(
 , Sells(["Book"], "CD")
 , [ Product(
       "Book"
+    , ["CD"]
     , [ ListOfSimple(
           "name"
         , LongString()
-        , [AttributeList([Attribute("title", "\"Name\"")], Attribute("navigable", "\"true\""))]
+        , [ AttributeList(
+              [Attribute("title", "\"Name\""), Attribute("navigable", "\"true\"")]
+            , Attribute("searchable", "\"true\"")
+            )
+          ]
         )
       , ListOfComplex(
           "author"
@@ -18,6 +23,8 @@ Shop(
       , SimpleProperty("frontImage", Image(), [])
       ]
     )
-  , Product("CD", [SimpleProperty("name", Date(), [])])
+  , Product("CD", [], [SimpleProperty("name", Date(), [])])
   ]
+, Some(GroupByType())
+, [GroupByProperty("author"), GroupByProperty("price")]
 )

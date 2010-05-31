@@ -6,21 +6,33 @@ shop BookShop
 	sells { Book, CD }
 }
 
-product type Book
-{
-	name :: LongString (title : "Name", navigable : "true")
-	
+basic product type Base
+{ 
+	name : LongString (title : "Name", navigable : "true", searchable : "true")
+	price : String
+	Genre :
+		{
+			name : String
+			description : String
+		}
+}
+
+product type Book : Base
+{	
 	author :: 
 	{
 		name : String
 		age : Int
 	}   (title : "Name", navigable : "true")
 	
-	price : Float
 	frontImage : Image
 }
 
-product type CD
+product type CD : Base
 {
-	name : Date
+	length : Int
 }
+
+group by type
+group by property Genre
+
