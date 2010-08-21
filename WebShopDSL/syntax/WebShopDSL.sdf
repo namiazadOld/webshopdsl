@@ -11,11 +11,11 @@ exports
 
   context-free syntax
   
-    "shop" ID "{" With* Sells "}" BasicProductType* ProductType* GroupByType? GroupByProperty*-> Start {cons ("Shop")}
-    "with" SupportedClause STRING 											-> With {cons ("With")}
-    "logo" 																	-> SupportedClause {cons("ShopLogo")}
-    "title" 																-> SupportedClause {cons("ShopTitle")}
-    "description"															-> SupportedClause {cons("ShopDescription")}
+    "shop" ID "{" ShopProperty* Sells "}" BasicProductType* ProductType* GroupByType? GroupByProperty* -> Start {cons ("Shop")}
+    SupportedShopProperty STRING 											-> ShopProperty {cons ("ShopProperty")}
+    "logo" 																	-> SupportedShopProperty {cons("ShopLogo")}
+    "title" 																-> SupportedShopProperty {cons("ShopTitle")}
+    "description"															-> SupportedShopProperty {cons("ShopDescription")}
     "sells" "{" (ID ",")* ID "}"											-> Sells {cons("Sells")}
     "product" "type" ID (":" ID)? "{" Property* "}"							-> ProductType {cons("Product")}
     "basic" "product" "type" ID (":" ID)? "{" Property* "}"					-> ProductType {cons("BasicProduct")}
@@ -24,8 +24,8 @@ exports
     ListProperty															-> Property {}
     ID ":" SimpleType ("(" AttributeList ")")?								-> SimpleProperty {cons("SimpleProperty")}
     ID ":" ComplexType  ("(" AttributeList ")")? 							-> ComplexProperty {cons("ComplexProperty")}
-    ID "::" SimpleType  ("(" AttributeList ")")? 							-> ListProperty {cons("ListOfSimple")}
-    ID "::" ComplexType  ("(" AttributeList ")")? 							-> ListProperty {cons("ListOfComplex")}
+    ID "[]" SimpleType  ("(" AttributeList ")")? 							-> ListProperty {cons("ListOfSimple")}
+    ID "[]" ComplexType  ("(" AttributeList ")")? 							-> ListProperty {cons("ListOfComplex")}
     "String"																-> SimpleType {cons("String")}
     "Int"																	-> SimpleType {cons("Int")}
     "Date"																	-> SimpleType {cons("Date")}
