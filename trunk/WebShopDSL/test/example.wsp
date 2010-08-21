@@ -1,8 +1,8 @@
 shop BookShop
 {
-	with logo "C:\logo.png"
-	with title "Book Shop"
-	with description "Best Shop"
+	logo "C:\logo.png"
+	title "Book Shop"
+	description "Best Shop"
 	sells { Book, CD }
 }
 
@@ -19,7 +19,7 @@ basic product type Base
 
 product type Book : Base
 {	
-	author :: 
+	author [] 
 	{
 		name : String
 		age : Int
