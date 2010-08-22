@@ -1,45 +1,9 @@
 Shop(
   "BookShop"
 , [ShopProperty(ShopLogo(), "\"C:\\logo.png\""), ShopProperty(ShopTitle(), "\"Book Shop\""), ShopProperty(ShopDescription(), "\"Best Shop\"")]
-, Sells(["Book"], "CD")
+, Sells([ProductEntity("Book")], ProductEntity("CD"))
 , []
-, [ BasicProduct(
-      "Base"
-    , []
-    , [ SimpleProperty(
-          "name"
-        , LongString()
-        , [ AttributeList(
-              [Attribute("title", "\"Name\""), Attribute("navigable", "\"true\"")]
-            , Attribute("searchable", "\"true\"")
-            )
-          ]
-        )
-      , SimpleProperty("price", String(), [])
-      , ComplexProperty(
-          "Genre"
-        , [SimpleProperty("name", String(), []), SimpleProperty("description", String(), [])]
-        , []
-        )
-      ]
-    )
-  , Product(
-      "Book"
-    , ["Base"]
-    , [ ListOfComplex(
-          "author"
-        , [SimpleProperty("name", String(), []), SimpleProperty("age", Int(), [])]
-        , [AttributeList([Attribute("title", "\"Name\"")], Attribute("navigable", "\"true\""))]
-        )
-      , SimpleProperty("frontImage", Image(), [])
-      ]
-    )
-  , Product(
-      "CD"
-    , ["Base"]
-    , [SimpleProperty("length", Int(), [])]
-    )
-  ]
-, Some(GroupByType())
-, [GroupByProperty("Genre")]
+, []
+, None()
+, []
 )
