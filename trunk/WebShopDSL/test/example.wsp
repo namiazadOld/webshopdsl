@@ -3,36 +3,16 @@ shop BookShop
 	logo "C:\logo.png"
 	title "Book Shop"
 	description "Best Shop"
-	sells { Book, CD }
-}
-
-basic product type Base
-{ 
-	name : LongString (title : "Name", navigable : "true", searchable : "true")
-	price : String
-	Genre :
-		{
-			name : String
-			description : String
-		}
-}
-
-product type Book : Base
-{	
-	author [] 
-	{
-		name : String
-		age : Int
-	}   (title : "Name", navigable : "true")
+	sells { CD }
 	
-	frontImage : Image
+	product type CD
+	{
+		length : Int
+		kir		: Float
+		dool	:LongString
+		kos		: Image
+		
+	}
+
+
 }
-
-product type CD : Base
-{
-	length : Int
-}
-
-group by type
-group by property Genre
-
