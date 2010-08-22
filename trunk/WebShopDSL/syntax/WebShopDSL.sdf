@@ -11,12 +11,13 @@ exports
 
   context-free syntax
   
-    "shop" ID "{" ShopProperty* Sells "}" BasicProductType* ProductType* GroupByType? GroupByProperty* -> Start {cons ("Shop")}
+    "shop" ID "{" ShopProperty* Sells BasicProductType* ProductType* GroupByType? GroupByProperty* "}" -> Start {cons ("Shop")}
     SupportedShopProperty STRING 											-> ShopProperty {cons ("ShopProperty")}
     "logo" 																	-> SupportedShopProperty {cons("ShopLogo")}
     "title" 																-> SupportedShopProperty {cons("ShopTitle")}
     "description"															-> SupportedShopProperty {cons("ShopDescription")}
-    "sells" "{" (ID ",")* ID "}"											-> Sells {cons("Sells")}
+    "sells" "{" (Entity ",")* Entity "}"									-> Sells {cons("Sells")}
+
     "product" "type" ID (":" ID)? "{" Property* "}"							-> ProductType {cons("Product")}
     "basic" "product" "type" ID (":" ID)? "{" Property* "}"					-> ProductType {cons("BasicProduct")}
     SimpleProperty															-> Property {}
@@ -35,8 +36,9 @@ exports
     "Email"																	-> SimpleType {cons("Email")}
     
     
-   	"{" SimpleProperty* "}"										  			-> ComplexType {}
+   	"{" SimpleProperty* "}"										  			-> ComplexType { cons("ComplexType")}
    	(Attribute ",")*Attribute												-> AttributeList {cons("AttributeList")}
    	ID ":" STRING															-> Attribute {cons("Attribute")}
+   	ID																		-> Entity{ cons("ProductEntity")}
    	"group" "by" "type"														-> GroupByType {cons ("GroupByType")}
-   	"group" "by" "property" ID												-> GroupByProperty {cons("GroupByProperty")}
+   	"group" "by" "property" ID "." ID										-> GroupByProperty {cons("GroupByProperty")}
