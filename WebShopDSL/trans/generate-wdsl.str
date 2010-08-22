@@ -12,8 +12,62 @@ module generate-wdsl
         (selected, position, ast, path, project-path) -> (filename, result-string)
         with
           filename := <guarantee-extension(|"yml")> path;
-          result-string := <ws> selected
+          result-string := <ws-gen> selected
 
 	rules
+		ws-gen = alltd(ws)
+		ws : Shop(shopName, with*, sells, basicType*, productType*, groupByType*, groupByProp*) -> 
+			$[application [shopName]{
+				
+				[<map(ws)> with*]
+				
+				[<map(ws)>productType*]
+			  }
+			]
+
+		// ws : ShopProperty(prop, value) -> value
+		ws : ShopProperty(prop, value) -> <ws(|value)> prop
+		ws(|value) : ShopDescription()	-> $[
+			description{
+				[value]	
+			}
+		]
+		ws(|value) : ShopLogo()	-> $[
+	includeCSS("layout.css")
+	<div id="wrapper">
+         <div id="header">
+		 
+		       mainheader()		 
+			   
+		 </div>
+	</div>
+
+define mainheader() {
+  navigate(root()){
+    image([value])
+  }
+}
+		 			
+		]
+		ws(|value) : ShopTitle()	-> $[]
+
+
+	//	ws	:	Sells(items*, item) -> $[[<map(ws);separate-by(|"\n");concat-strings>items*]
+	//	 [<ws>item]]
 		
-		ws : Shop(shopName, with*, sells, basicType*, productType*, groupByType*, groupByProp*) -> $[shop]
+		ws	: 	Product(name, base, prop*) ->$[entity [name]{
+			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
+		}]
+		
+		ws	:	SimpleProperty(name, type, attr*) -> $[[name] :: [<ws>type]]
+		ws	:	ComplexProperty(name, type, attr*)	-> $[]
+		ws	: 	ListOfSimple(name, type, attr*)	-> $[]
+		ws	: 	ListOfComplex(name, type, attr*)	-> $[]
+		
+		ws	:	String()	->	$[String]
+		ws	:	Int()		->	$[Int]
+		ws	:	Float()		->	$[Float]
+		ws	:	Date()		->	$[Date]
+		ws	:	Image()		->	$[Image]
+		ws	:	LongString()->	$[WikiText]
+		ws	:	Email()		->	$[Email]
