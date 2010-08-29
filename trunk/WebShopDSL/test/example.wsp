@@ -1,18 +1,40 @@
-shop BookShop
+shop exampleapp
 {
-	logo "C:\logo.png"
+	logo "/images/logo.png"
 	title "Book Shop"
 	description "Best Shop"
 	sells { CD }
 	
-	product type CD
+	basic product type Sellable
 	{
-		length : Int
-		kir		: Float
-		dool	:LongString
-		kos		: Image
-		
+		price : Float
+		name : String  
+		genre : Genre{
+			name : String
+			desc : String
+		}
+	}
+	
+	product type Book : Sellable
+	{
+		publicationDate : Date 
+		author[] : Author
+		{
+			name : String
+			age : Int
+
+		}
 	}
 
+	product type CD : Sellable
+	{
+		len : Int (title : "true")
+		type : String (summary : "true" )
+		producer : String
+	}
 
+	group by type
+	group by property Sellable.Genre
+	
+	
 }
