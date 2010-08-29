@@ -17,16 +17,15 @@ exports
     "title" 																-> SupportedShopProperty {cons("ShopTitle")}
     "description"															-> SupportedShopProperty {cons("ShopDescription")}
     "sells" "{" (Entity ",")* Entity "}"									-> Sells {cons("Sells")}
-
+	
     "product" "type" ID (":" ID)? "{" Property* "}"							-> ProductType {cons("Product")}
-    "basic" "product" "type" ID (":" ID)? "{" Property* "}"					-> ProductType {cons("BasicProduct")}
+    "basic" "product" "type" ID "{" Property* "}"					-> ProductType {cons("BasicProduct")}
     SimpleProperty															-> Property {}
     ComplexProperty															-> Property {}
     ListProperty															-> Property {}
     ID ":" SimpleType ("(" AttributeList ")")?								-> SimpleProperty {cons("SimpleProperty")}
     ID ":" ComplexType  ("(" AttributeList ")")? 							-> ComplexProperty {cons("ComplexProperty")}
-    ID "[]" SimpleType  ("(" AttributeList ")")? 							-> ListProperty {cons("ListOfSimple")}
-    ID "[]" ComplexType  ("(" AttributeList ")")? 							-> ListProperty {cons("ListOfComplex")}
+    ID "[]" ":" ComplexType  ("(" AttributeList ")")? 							-> ListProperty {cons("ListOfComplex")}
     "String"																-> SimpleType {cons("String")}
     "Int"																	-> SimpleType {cons("Int")}
     "Date"																	-> SimpleType {cons("Date")}
@@ -36,7 +35,7 @@ exports
     "Email"																	-> SimpleType {cons("Email")}
     
     
-   	"{" SimpleProperty* "}"										  			-> ComplexType { cons("ComplexType")}
+   	ID "{" SimpleProperty* "}"										  			-> ComplexType { cons("ComplexType")}
    	(Attribute ",")*Attribute												-> AttributeList {cons("AttributeList")}
    	ID ":" STRING															-> Attribute {cons("Attribute")}
    	ID																		-> Entity{ cons("ProductEntity")}
