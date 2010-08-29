@@ -1,9 +1,52 @@
 Shop(
-  "BookShop"
-, [ShopProperty(ShopLogo(), "\"C:\\logo.png\""), ShopProperty(ShopTitle(), "\"Book Shop\""), ShopProperty(ShopDescription(), "\"Best Shop\"")]
-, Sells([ProductEntity("Book")], ProductEntity("CD"))
+  "exampleapp"
+, [ShopProperty(ShopLogo(), "\"/images/logo.png\""), ShopProperty(ShopTitle(), "\"Book Shop\""), ShopProperty(ShopDescription(), "\"Best Shop\"")]
+, Sells([], ProductEntity("CD"))
 , []
-, []
-, None()
-, []
+, [ BasicProduct(
+      "Sellable"
+    , [ SimpleProperty("price", Float(), [])
+      , SimpleProperty("name", String(), [])
+      , ComplexProperty(
+          "genre"
+        , ComplexType(
+            "Genre"
+          , [SimpleProperty("name", String(), []), SimpleProperty("desc", String(), [])]
+          )
+        , []
+        )
+      ]
+    )
+  , Product(
+      "Book"
+    , ["Sellable"]
+    , [ ListOfComplex(
+          "author"
+        , ComplexType(
+            "Author"
+          , [SimpleProperty("name", String(), []), SimpleProperty("age", Int(), [])]
+          )
+        , []
+        )
+      ]
+    )
+  , Product(
+      "CD"
+    , ["Sellable"]
+    , [ SimpleProperty(
+          "len"
+        , Int()
+        , [AttributeList([Attribute("summary", "\"true\"")], Attribute("kir", "\"as\""))]
+        )
+      , SimpleProperty(
+          "type"
+        , String()
+        , [AttributeList([], Attribute("summary", "\"true\""))]
+        )
+      , SimpleProperty("producer", String(), [])
+      ]
+    )
+  ]
+, Some(GroupByType())
+, [GroupByProperty("Sellable", "Genre")]
 )

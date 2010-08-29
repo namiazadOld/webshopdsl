@@ -1,0 +1,364 @@
+application exampleapp
+	imports templates
+	
+	section pages
+	
+	define page root() {
+	  main()
+	  define body() {
+	    "Hello world!"
+	  }
+	}			
+	define main(){
+		includeCSS("layout.css")
+		<div id="wrapper">
+	         <div id="header">
+			 
+			       mainheader()		 
+				   
+			 </div>
+			 
+	         	<div id="navigation">
+			 
+			      <div id="tabs">
+	//		      	applicationmenu()
+			      </div>
+			</div>
+			     
+			
+			 <div id="leftcolumn">
+				<div class="arrowgreen">
+	//				leftsidemenu()
+				</div>
+			 
+			 </div>
+			 <div id="content">
+			      
+				  body() 
+			 
+			 </div>
+			 <div id="rightcolumn">
+	//		 	search()
+	//		 	testimonial()
+			 </div>
+			 <div id="footer">
+	//		       		footer()
+				   <p />"powered by " <a href="http://webdsl.org">"WebDSL"</a><p />		
+				    
+		     </div>   </div>
+	}
+	
+	
+	define mainheader() {
+	  navigate(root()){
+	    image("/images/logo.png")
+	  }
+	}
+			 			
+	define body(){
+		
+	}		 			
+	
+	description {
+		"Best Shop"	
+	}
+	
+	
+	entity Sellable{
+	price :: Float
+	name :: String
+	genre -> Genre
+	}
+	entity Genre{
+	name :: String
+	desc :: String
+	}
+	
+	
+	entity Book: Sellable {
+	publicationDate :: Date
+	author->Set<Author>
+	}
+	entity Author{
+	name :: String
+	age :: Int
+	}
+	
+	
+	entity CD: Sellable {
+	len :: Int
+	type :: String
+	producer :: String
+	}
+	
+	
+
+
+	section productPages
+	
+	define page createSellable() {
+	init { }
+	var sellable:= Sellable{};
+	main
+	define body(){
+		section {
+			header {"Create New Sellable"}
+			form{
+				
+				
+				par{ label("price "){ input(sellable.price) } }			
+				
+				par{ label("name "){ input(sellable.name) } }			
+				
+				par{ label("genre "){ input(sellable.genre) } }			
+				
+				submit create(sellable) {"Create" }
+			}
+		}
+	}
+	
+	action create(sellable : Sellable)
+	{
+		
+		sellable.save();
+		log("SellableCreation Log: " + sellable);
+		message("Sellable has been created successfully.");				
+		
+		return createSellable(); 
+	}
+	}
+	
+			define sellableDetail(sellable: Sellable)
+			{
+				main()
+				define body()
+				{
+					<div id="sellableDetail">
+			  		table{
+			  			
+	
+			  		}  		
+			  		</div>
+				}
+			}		
+			
+			define page createGenre() {
+			init { }
+			var genre:= Genre{};
+			main
+			define body(){
+				section {
+					header {"Create New Genre"}
+					form{
+						
+						
+						par{ label("name "){ input(genre.name) } }			
+						
+						par{ label("desc "){ input(genre.desc) } }			
+						
+						submit create(genre) {"Create" }
+					}
+				}
+			}
+			
+			action create(genre : Genre)
+			{
+				
+				genre.save();
+				log("GenreCreation Log: " + genre);
+				message("Genre has been created successfully.");				
+				
+				return createGenre(); 
+			}
+			}
+			
+					define genreDetail(genre: Genre)
+					{
+						main()
+						define body()
+						{
+							<div id="genreDetail">
+					  		table{
+					  			
+			
+					  		}  		
+					  		</div>
+						}
+					}		
+					
+					
+					
+			
+			
+	define page createBook() {
+	init { }
+	var book:= Book{};
+	main
+	define body(){
+		section {
+			header {"Create New Book"}
+			form{
+				
+				par{ label("price "){ input(book.price) } }			
+				
+				par{ label("name "){ input(book.name) } }			
+				
+				par{ label("genre "){ input(book.genre) } }			
+				
+				
+				par{ label("publicationDate "){ input(book.publicationDate) } }			
+				
+				par{ label("author "){ input(book.author) } }			
+				
+				submit create(book) {"Create" }
+			}
+		}
+	}
+	
+	action create(book : Book)
+	{
+		
+		book.save();
+		log("BookCreation Log: " + book);
+		message("Book has been created successfully.");				
+		
+		return createBook(); 
+	}
+	}
+	
+			define bookDetail(book: Book)
+			{
+				main()
+				define body()
+				{
+					<div id="bookDetail">
+			  		table{
+			  			
+	
+			  		}  		
+			  		</div>
+				}
+			}		
+			
+			define page createAuthor() {
+			init { }
+			var author:= Author{};
+			main
+			define body(){
+				section {
+					header {"Create New Author"}
+					form{
+						
+						
+						par{ label("name "){ input(author.name) } }			
+						
+						par{ label("age "){ input(author.age) } }			
+						
+						submit create(author) {"Create" }
+					}
+				}
+			}
+			
+			action create(author : Author)
+			{
+				
+				author.save();
+				log("AuthorCreation Log: " + author);
+				message("Author has been created successfully.");				
+				
+				return createAuthor(); 
+			}
+			}
+			
+					define authorDetail(author: Author)
+					{
+						main()
+						define body()
+						{
+							<div id="authorDetail">
+					  		table{
+					  			
+			
+					  		}  		
+					  		</div>
+						}
+					}		
+					
+					
+					
+			
+			
+	define page createCD() {
+	init { }
+	var cd:= CD{};
+	main
+	define body(){
+		section {
+			header {"Create New CD"}
+			form{
+				
+				par{ label("price "){ input(cd.price) } }			
+				
+				par{ label("name "){ input(cd.name) } }			
+				
+				par{ label("genre "){ input(cd.genre) } }			
+				
+				
+				par{ label("len "){ input(cd.len) } }			
+				
+				par{ label("type "){ input(cd.type) } }			
+				
+				par{ label("producer "){ input(cd.producer) } }			
+				
+				submit create(cd) {"Create" }
+			}
+		}
+	}
+	
+	action create(cd : CD)
+	{
+		
+		cd.save();
+		log("CDCreation Log: " + cd);
+		message("CD has been created successfully.");				
+		
+		return createCD(); 
+	}
+	}
+	
+			define cdDetail(cd: CD)
+			{
+				main()
+				define body()
+				{
+					<div id="cdDetail">
+			  		table{
+			  			
+			  			row{
+			  					column{	
+			  							output("type : " + cd.type)	
+			  						  }
+			  				}
+			  						
+			  			
+	
+			  		}  		
+			  		</div>
+				}
+			}		
+			
+			
+			
+	
+	
+	section leftcategoriesmenu
+	
+	define leftsidemenu(){			
+		<ul>
+			for(genre :Genre ){
+				<li> navigate(root()){ output(genre)} </li>
+			}
+		</ul>
+	}		
+	
+	
