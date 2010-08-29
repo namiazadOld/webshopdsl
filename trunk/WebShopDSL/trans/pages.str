@@ -1,0 +1,128 @@
+module pages
+	imports include/WebShopDSL
+	  		libstratego-lib
+  			libstratego-gpp
+  			libstratego-aterm
+  			lib/editor-common.generated
+  			generate-wdsl
+  			
+rules
+			
+		pg : Shop(shopName, with*, sells, basicType*, productType*, groupByType, groupByProp*) -> 
+			$[
+				section productPages
+				
+				[<map(pg);concat-strings>productType*]
+				
+				section leftcategoriesmenu
+				[<map(leftmenu);concat-strings> groupByProp* ]
+				
+			]
+		
+		pg	:	BasicProduct(name, prop*) -> <createPage(|[], prop*)>name
+		
+		pg	: 	Product(name, base, prop*) -> <createPage(| base, prop*)>name
+
+
+		
+		complexCRUDPages: l@ListOfComplex(name, ComplexType(typeName, prop*), attr*) -> <createPage(| [], prop*)>typeName
+		
+		complexCRUDPages: l@ComplexProperty(name, ComplexType(typeName, prop*), attr*) -> <createPage(| [], prop*)>typeName
+
+		complexCRUDPages: l@SimpleProperty(name, type, attr*) -> $[]
+		
+				
+		baseCheck(|entity) : [] -> $[]
+		baseCheck(|entity) : [base] -> $[[basic]]
+		with baseProp* := <BasicProductMap> base ;
+		basic := <map(pg(|entity))>baseProp*
+				
+		pg(|entity): SimpleProperty(name, type, attr*) -> $[
+				par{ label("[name] "){ input([entity].[name]) } }			
+		]
+		pg(|entity): ComplexProperty(name, type, attr*) ->  $[
+				par{ label("[name] "){ input([entity].[name]) } }			
+		]
+		pg(|entity): ListOfComplex(name, type, attr*) -> $[
+				par{ label("[name] "){ input([entity].[name]) } }			
+		]
+		
+		leftmenu: GroupByProperty(base, prop) -> $[
+		define leftsidemenu(){			
+			<ul>
+				for([varname] :[prop] ){
+					<li> navigate(root()){ output([varname])} </li>
+				}
+			</ul>
+		}		
+		]
+		with varname:= <lower-case>prop
+		
+		
+		
+		createPage(| base, prop*): name ->  $[define page create[name]() {
+			init { }
+			var [ varname ]:= [name]{};
+			main
+			define body(){
+				section {
+					header {"Create New [name]"}
+					form{
+						[<baseCheck(|varname)>base]
+						[<map(pg(|varname))>prop*]
+						submit create([varname]) {"Create" }
+					}
+				}
+			}
+			
+			action create([varname] : [name])
+			{
+				
+				[varname].save();
+				log("[name]Creation Log: " + [varname]);
+				message("[name] has been created successfully.");				
+				
+				return create[name](); 
+			}
+		}
+
+		define [varname]Detail([varname]: [name])
+		{
+			main()
+			define body()
+			{
+				<div id="[varname]Detail">
+		  		table{
+		  			[<map(fieldDetailsUI(|varname));concat-strings>prop*]
+
+		  		}  		
+		  		</div>
+			}
+		}		
+		
+		[<map(complexCRUDPages)>prop*]
+		
+		]
+		with varname:= <lower-case>name		
+		
+		fieldDetailsUI(|varname) : a@SimpleProperty(propName, type, attr*) -> <map(rule1(|varname, propName));concat-strings> attr*
+			
+		fieldDetailsUI(|varname) : ComplexProperty(propName, type, attr*) -> $[]	
+		fieldDetailsUI(|varname) : ListOfComplex(propName, type, attr*) -> $[]	
+		
+		rule1 (|varname, propName) : a@AttributeList(attr*, attr) -> result
+		with r1 := <map(rule2(|varname, propName));concat-strings>attr*;
+			 r2 := <rule2(|varname, propName)> attr;
+			 result := <concat-strings>[r1, r2]
+		
+		
+		rule2(|varname, propName) : Attribute("summary", "\"true\"") -> $[
+			row{
+	  			column{	
+	  					output("[propName] : " + [varname].[propName])	
+	  				  }
+	  		}
+	  				
+		]
+		rule2(|varname, propName) : Attribute(t1, t2) -> $[]
+		
