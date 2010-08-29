@@ -5,34 +5,48 @@ module generate-wdsl
   			libstratego-gpp
   			libstratego-aterm
   			lib/editor-common.generated
-
+			pages
 	strategies
 		
 		transform-to-wdsl:
-        (selected, position, ast, path, project-path) -> (filename, result-string)
+        (selected, position, ast, path, project-path) -> (filename, <concat-strings>[entities,pages])
         with
           filename := <guarantee-extension(|"yml")> path;
-          result-string := <ws-gen> selected
+          entities := <ws-gen> selected;
+          pages := <pagesui> selected
 
 	rules
+		//declare = alltd(scan)
+		scan= topdown(try(\ComplexType(name, prop*) -> $[chos]\))
+		pagesui= alltd(pg)
+		
 		ws-gen = alltd(ws)
 		ws : Shop(shopName, with*, sells, basicType*, productType*, groupByType*, groupByProp*) -> 
-			$[application [shopName]{
-				
+			$[application [shopName]
+				imports templates
 				[<map(ws)> with*]
 				
 				[<map(ws)>productType*]
-			  }
+	
 			]
 
 		// ws : ShopProperty(prop, value) -> value
 		ws : ShopProperty(prop, value) -> <ws(|value)> prop
 		ws(|value) : ShopDescription()	-> $[
-			description{
+			description {
 				[value]	
 			}
 		]
 		ws(|value) : ShopLogo()	-> $[
+section pages
+
+define page root() {
+  main()
+  define body() {
+    "Hello world!"
+  }
+}			
+define main(){
 	includeCSS("layout.css")
 	<div id="wrapper">
          <div id="header">
@@ -40,7 +54,37 @@ module generate-wdsl
 		       mainheader()		 
 			   
 		 </div>
-	</div>
+		 
+         	<div id="navigation">
+		 
+		      <div id="tabs">
+//		      	applicationmenu()
+		      </div>
+		</div>
+		     
+		
+		 <div id="leftcolumn">
+			<div class="arrowgreen">
+//				leftsidemenu()
+			</div>
+		 
+		 </div>
+		 <div id="content">
+		      
+			  body() 
+		 
+		 </div>
+		 <div id="rightcolumn">
+//		 	search()
+//		 	testimonial()
+		 </div>
+		 <div id="footer">
+//		       		footer()
+			   <p />"powered by " <a href="http://webdsl.org">"WebDSL"</a><p />		
+			    
+	     </div>   </div>
+}
+
 
 define mainheader() {
   navigate(root()){
@@ -48,6 +92,9 @@ define mainheader() {
   }
 }
 		 			
+define body(){
+	
+}		 			
 		]
 		ws(|value) : ShopTitle()	-> $[]
 
@@ -55,14 +102,43 @@ define mainheader() {
 	//	ws	:	Sells(items*, item) -> $[[<map(ws);separate-by(|"\n");concat-strings>items*]
 	//	 [<ws>item]]
 		
-		ws	: 	Product(name, base, prop*) ->$[entity [name]{
+		ws	:	BasicProduct(name, prop*) -> $[entity [name]{
 			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
-		}]
+		}
+		[<map(complexExtract)>prop*]
+		]
+		with  rules ( BasicProductMap : name -> prop* )
+		 
+		ws	: 	Product(name, [], prop*) ->$[entity [name] {
+			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
+		}
+		[<map(complexExtract)>prop*]
+		]
 		
+		ws	: 	Product(name, [base], prop*) ->$[entity [name]: [base] {
+			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
+		}
+		[<map(complexExtract)>prop*]
+		]
+			
+		
+		complexExtract: l@ListOfComplex(name, ComplexType(typeName, prop*), attr*) -> $[entity [typeName]{
+			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
+		}
+
+		]
+		
+		complexExtract: l@ComplexProperty(name, ComplexType(typeName, prop*), attr*) -> $[entity [typeName]{
+			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
+		}
+		
+		]
+
+		complexExtract: l@SimpleProperty(name, type, attr*) -> $[]
+			
 		ws	:	SimpleProperty(name, type, attr*) -> $[[name] :: [<ws>type]]
-		ws	:	ComplexProperty(name, type, attr*)	-> $[]
-		ws	: 	ListOfSimple(name, type, attr*)	-> $[]
-		ws	: 	ListOfComplex(name, type, attr*)	-> $[]
+		ws	:	ComplexProperty(name, ComplexType(typeName, prop*), attr*)	-> $[[name] -> [typeName]]
+		ws	: 	ListOfComplex(name, ComplexType(typeName, prop*), attr*)	-> $[ [name]->Set<[typeName]>]
 		
 		ws	:	String()	->	$[String]
 		ws	:	Int()		->	$[Int]
@@ -71,3 +147,6 @@ define mainheader() {
 		ws	:	Image()		->	$[Image]
 		ws	:	LongString()->	$[WikiText]
 		ws	:	Email()		->	$[Email]
+		
+
+		
