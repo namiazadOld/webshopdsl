@@ -8,7 +8,7 @@ shop exampleapp
 	basic product type Sellable
 	{
 		price : Float
-		name : String  
+		name : String (summary : "true" ) 
 		genre : Genre{
 			name : String
 			desc : String
@@ -17,7 +17,7 @@ shop exampleapp
 	
 	product type Book : Sellable
 	{
-		publicationDate : Date 
+		publicationDate : Date (summary : "true" ) 
 		author[] : Author
 		{
 			name : String
@@ -34,7 +34,7 @@ shop exampleapp
 	}
 
 	group by type
-	group by property Sellable.Genre
+	group by property Sellable.genre
 	
 	
 }

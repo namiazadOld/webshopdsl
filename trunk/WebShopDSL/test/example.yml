@@ -28,7 +28,7 @@ application exampleapp
 			
 			 <div id="leftcolumn">
 				<div class="arrowgreen">
-	//				leftsidemenu()
+					leftsidemenu()
 				</div>
 			 
 			 </div>
@@ -130,16 +130,19 @@ application exampleapp
 	
 			define sellableDetail(sellable: Sellable)
 			{
-				main()
-				define body()
-				{
-					<div id="sellableDetail">
-			  		table{
-			  			
-	
-			  		}  		
-			  		</div>
-				}
+				<div id="sellableSummary">
+		  		
+		  			
+		  			
+		  			row{
+		  					column{	
+		  							output("name : " + sellable.name)	
+		  						  }
+		  				}
+		  						
+		  			
+	 		
+		  		</div>
 			}		
 			
 			define page createGenre() {
@@ -174,16 +177,12 @@ application exampleapp
 			
 					define genreDetail(genre: Genre)
 					{
-						main()
-						define body()
-						{
-							<div id="genreDetail">
-					  		table{
-					  			
-			
-					  		}  		
-					  		</div>
-						}
+						<div id="genreSummary">
+				  		
+				  			
+				  			
+			 		
+				  		</div>
 					}		
 					
 					
@@ -228,16 +227,26 @@ application exampleapp
 	
 			define bookDetail(book: Book)
 			{
-				main()
-				define body()
-				{
-					<div id="bookDetail">
-			  		table{
-			  			
-	
-			  		}  		
-			  		</div>
-				}
+				<div id="bookSummary">
+		  		
+		  			
+		  			row{
+		  					column{	
+		  							output("name : " + book.name)	
+		  						  }
+		  				}
+		  						
+		  			
+		  			
+		  			row{
+		  					column{	
+		  							output("publicationDate : " + book.publicationDate)	
+		  						  }
+		  				}
+		  						
+		  			
+	 		
+		  		</div>
 			}		
 			
 			define page createAuthor() {
@@ -272,16 +281,12 @@ application exampleapp
 			
 					define authorDetail(author: Author)
 					{
-						main()
-						define body()
-						{
-							<div id="authorDetail">
-					  		table{
-					  			
-			
-					  		}  		
-					  		</div>
-						}
+						<div id="authorSummary">
+				  		
+				  			
+				  			
+			 		
+				  		</div>
 					}		
 					
 					
@@ -328,23 +333,26 @@ application exampleapp
 	
 			define cdDetail(cd: CD)
 			{
-				main()
-				define body()
-				{
-					<div id="cdDetail">
-			  		table{
-			  			
-			  			row{
-			  					column{	
-			  							output("type : " + cd.type)	
-			  						  }
-			  				}
-			  						
-			  			
-	
-			  		}  		
-			  		</div>
-				}
+				<div id="cdSummary">
+		  		
+		  			
+		  			row{
+		  					column{	
+		  							output("name : " + cd.name)	
+		  						  }
+		  				}
+		  						
+		  			
+		  			
+		  			row{
+		  					column{	
+		  							output("type : " + cd.type)	
+		  						  }
+		  				}
+		  						
+		  			
+	 		
+		  		</div>
 			}		
 			
 			
@@ -356,9 +364,30 @@ application exampleapp
 	define leftsidemenu(){			
 		<ul>
 			for(genre :Genre ){
-				<li> navigate(root()){ output(genre)} </li>
+				<li> navigate(listByGenre(genre)){ output(genre)} </li>
 			}
 		</ul>
 	}		
+	
+	
+	define page listByGenre(value : Genre){
+		main()
+		define body(){
+			table
+			{
+				
+				for(entity :Book where entity.genre == value)
+				{
+					bookDetail(entity) 
+				}
+				
+				for(entity :CD where entity.genre == value)
+				{
+					cdDetail(entity) 
+				}
+				
+			}
+		}
+	}
 	
 	
