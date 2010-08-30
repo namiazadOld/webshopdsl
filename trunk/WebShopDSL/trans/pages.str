@@ -16,6 +16,7 @@ rules
 				
 				section leftcategoriesmenu
 				[<map(leftmenu);concat-strings> groupByProp* ]
+				[<map(listByProperty(|productType*));concat-strings> groupByProp*]
 				
 			]
 		
@@ -36,6 +37,11 @@ rules
 		baseCheck(|entity) : [base] -> $[[basic]]
 		with baseProp* := <BasicProductMap> base ;
 		basic := <map(pg(|entity))>baseProp*
+		
+		baseCheck2(|entity) : [] -> $[]
+		baseCheck2(|entity) : [base] -> $[[basic]]
+		with baseProp* := <BasicProductMap> base;
+		basic := <map(fieldDetailsUI(|entity));concat-strings>baseProp*
 				
 		pg(|entity): SimpleProperty(name, type, attr*) -> $[
 				par{ label("[name] "){ input([entity].[name]) } }			
@@ -50,17 +56,16 @@ rules
 		leftmenu: GroupByProperty(base, prop) -> $[
 		define leftsidemenu(){			
 			<ul>
-				for([varname] :[prop] ){
-					<li> navigate(root()){ output([varname])} </li>
+				for([varname] :[propTypeName] ){
+					<li> navigate(listBy[propTypeName]([varname])){ output([varname])} </li>
 				}
 			</ul>
 		}		
 		]
 		with varname:= <lower-case>prop
+		with c@ComplexProperty(propName, ComplexType(propTypeName, prop*), attr*) := <GetProperty><concat-strings>[base, ".", prop]
 		
-		
-		
-		createPage(| base, prop*): name ->  $[define page create[name]() {
+		createPage(|base, prop*): name ->  $[define page create[name]() {
 			init { }
 			var [ varname ]:= [name]{};
 			main
@@ -88,22 +93,18 @@ rules
 
 		define [varname]Detail([varname]: [name])
 		{
-			main()
-			define body()
-			{
-				<div id="[varname]Detail">
-		  		table{
-		  			[<map(fieldDetailsUI(|varname));concat-strings>prop*]
-
-		  		}  		
-		  		</div>
-			}
+			<div id="[varname]Summary">
+	  		
+	  			[<baseCheck2(|varname)>base]
+	  			[<map(fieldDetailsUI(|varname));concat-strings>prop*]
+ 		
+	  		</div>
 		}		
 		
 		[<map(complexCRUDPages)>prop*]
 		
 		]
-		with varname:= <lower-case>name		
+		with varname:= <lower-case>name
 		
 		fieldDetailsUI(|varname) : a@SimpleProperty(propName, type, attr*) -> <map(rule1(|varname, propName));concat-strings> attr*
 			
@@ -125,4 +126,49 @@ rules
 	  				
 		]
 		rule2(|varname, propName) : Attribute(t1, t2) -> $[]
+		
+		
+		//Filter the product on special base
+		for-each(|b, prop, value) : Product(name, [b], prop*) -> $[
+				for(entity :[name] where entity.[prop] == [value])
+				{
+					[lower]Detail(entity) 
+				}
+			]
+		with lower:= <lower-case>name		
+		for-each(|b, prop, value) : Product(name, base, prop*) -> $[]
+		for-each(|b, prop, value) : BasicProduct(name, prop*) -> $[]
+
+		
+		listByProperty(|productType*) : GroupByProperty(basicProduct, prop) -> $[
+		define page listBy[propTypeName]([value] : [propTypeName]){
+			main()
+			define body(){
+				table
+				{
+					[<map(for-each(|basicProduct, prop, value));concat-strings>productType*]
+				}
+			}
+		}
+		]
+		with c@ComplexProperty(propName, ComplexType(propTypeName, prop*), attr*) := <GetProperty><concat-strings>[basicProduct, ".", prop]
+		with value := "value"
+		
+
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
+		
 		
