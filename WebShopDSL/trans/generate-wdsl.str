@@ -12,11 +12,31 @@ module generate-wdsl
         (selected, position, ast, path, project-path) -> (filename, <concat-strings>[entities,pages])
         with
           filename := <guarantee-extension(|"yml")> path;
-          entities := <ws-gen> selected;
+          entities := <map; ws-gen> selected;
           pages := <pagesui> selected
 
 	rules
-		//declare = alltd(scan)
+		map = alltd(declare)
+		
+        // declare:
+            // g@GroupByProperty(basicProduct, prop) -> g
+            // with  rules ( HasGroupBy : prop -> basicProduct)
+            
+        declare:
+        	p@BasicProduct(name, prop*) -> p
+        	with <map(declare-property(|name))>prop*
+        
+        declare-property(|className):
+        	c@ComplexProperty(name, type, attr*) -> c
+        	with key := <concat-strings>[className, ".", name]; rules (GetProperty: key -> c)
+        	
+        declare-property(|className):
+        	c@SimpleProperty(name, type, attr*) -> c
+        	
+        declare-property(|className):
+        	c@ListOfComplex(name, type, attr*) -> c
+            
+        
 		scan= topdown(try(\ComplexType(name, prop*) -> $[chos]\))
 		pagesui= alltd(pg)
 		
@@ -65,7 +85,7 @@ define main(){
 		
 		 <div id="leftcolumn">
 			<div class="arrowgreen">
-//				leftsidemenu()
+				leftsidemenu()
 			</div>
 		 
 		 </div>
