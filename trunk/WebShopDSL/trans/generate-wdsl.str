@@ -18,10 +18,6 @@ module generate-wdsl
 	rules
 		map = alltd(declare)
 		
-        // declare:
-            // g@GroupByProperty(basicProduct, prop) -> g
-            // with  rules ( HasGroupBy : prop -> basicProduct)
-            
         declare:
         	p@BasicProduct(name, prop*) -> p
         	with <map(declare-property(|name))>prop*
@@ -50,7 +46,6 @@ module generate-wdsl
 	
 			]
 
-		// ws : ShopProperty(prop, value) -> value
 		ws : ShopProperty(prop, value) -> <ws(|value)> prop
 		ws(|value) : ShopDescription()	-> $[
 			description {
