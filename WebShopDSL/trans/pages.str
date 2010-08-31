@@ -126,11 +126,15 @@ rules
 
 		define [varname]Detail([varname]: [name])
 		{
-			<div id="[varname]Summary">
-	  		
-	  			[<baseCheck2(|varname)>base]
-	  			[<map(fieldDetailsUI(|varname));concat-strings>prop*]
- 		
+			<div class="ui-widget ui-widget-container" >
+				<h3 class="ui-widget ui-widget-header  ui-corner-top">output([varname].name)</h3>
+				
+				<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+		  		
+		  			[<baseCheck2(|varname)>base]
+		  			[<map(fieldDetailsUI(|varname));concat-strings>prop*]
+	 		
+		  		</div>
 	  		</div>
 		}		
 		
@@ -148,11 +152,8 @@ rules
 			 r2 := <ruleSimple2(|varname, propName)> attr;
 			 result := <concat-strings>[r1, r2]
 		ruleSimple2(|varname, propName) : Attribute("summary", "\"true\"") -> $[
-			row{
-	  			column{	
-	  					output("[propName] : " + [varname].[propName])	
-	  				  }
-	  		}
+	  					par {output("[propName] : " + [varname].[propName]) }	
+
 	  				
 		]
 		ruleSimple2(|varname, propName) : Attribute(t1, t2) -> $[]
@@ -164,11 +165,8 @@ rules
 		ruleComplex2(|varname, propName) : Attribute("summary", "\"true\"") -> $[
 			if ([varname].[propName] != null)
 			{
-				row{
-		  			column{	
-		  					output("[propName] : " + [varname].[propName].name)	
-		  				  }
-		  		}
+
+		  				par{	output("[propName] : " + [varname].[propName].name)}	
 	  		}
 	  				
 		]
@@ -182,14 +180,10 @@ rules
 			if ([varname].[propName] != null)
 			{
 				<strong>output("List of [propName]:")</strong>
-				row{
-		  			column{	
-		  					for ([value]: [propType] in [varname].[propName])
-		  					{
-		  						par{output([value].name)}
-		  					}
-		  				  }
-		  		}
+  					for ([value]: [propType] in [varname].[propName])
+  					{
+  						par{output([value].name)}
+  					}
 	  		}
 	  				
 		]
@@ -214,10 +208,9 @@ rules
 		define page listBy[propTypeName]([value] : [propTypeName]){
 			main()
 			define body(){
-				table
-				{
+				<div id="listAccordion">
 					[<map(for-each(|basicProduct, prop, value));concat-strings>productType*]
-				}
+				</div>
 			}
 		}
 		]
@@ -239,13 +232,12 @@ rules
 			define page listBy[name](){
 				main()
 				define body(){
-					table
-					{
+					<div id="listAccordion">
 						for(entity :[name])
 						{
-							[lower]Detail(entity) 
+								[lower]Detail(entity)
 						}						
-					}
+					</div> 
 				}
 			}
 		]
