@@ -6,11 +6,25 @@ application exampleapp
 	define page root() {
 	  main()
 	  define body() {
+	
 	    "Hello world!"
 	  }
 	}			
 	define main(){
-		includeCSS("layout.css")
+			includeCSS("layout.css")
+			includeCSS("jquery-ui.css")
+			includeJS("jquery.js")
+			includeJS("jquery-ui.js")
+	
+			<script>
+			$(function(){
+						
+							// Accordion
+							$("#accordion").accordion({ header: "h3" });
+						
+						});
+			</script>  	
+			
 		<div id="wrapper">
 	         <div id="header">
 			 
@@ -85,7 +99,17 @@ application exampleapp
 	}
 	
 	
-	entity CD: Sellable {
+	entity Gift{
+	dueDate :: Date
+	owner -> Owner
+	}
+	entity Owner{
+	name :: String
+	age :: Int
+	}
+	
+	
+	entity CD: Gift {
 	len :: Int
 	type :: String
 	producer :: String
@@ -293,6 +317,104 @@ application exampleapp
 					
 			
 			
+	define page createGift() {
+	init { }
+	var gift:= Gift{};
+	main
+	define body(){
+		section {
+			header {"Create New Gift"}
+			form{
+				
+				
+				par{ label("dueDate "){ input(gift.dueDate) } }			
+				
+				par{ label("owner "){ input(gift.owner) } }			
+				
+				submit create(gift) {"Create" }
+			}
+		}
+	}
+	
+	action create(gift : Gift)
+	{
+		
+		gift.save();
+		log("GiftCreation Log: " + gift);
+		message("Gift has been created successfully.");				
+		
+		return createGift(); 
+	}
+	}
+	
+			define giftDetail(gift: Gift)
+			{
+				<div id="giftSummary">
+		  		
+		  			
+		  			
+		  			row{
+		  					column{	
+		  							output("dueDate : " + gift.dueDate)	
+		  						  }
+		  				}
+		  						
+		  			
+		  			row{
+		  					column{	
+		  							output("name : " + gift.name)	
+		  						  }
+		  				}
+		  						
+		  			
+	 		
+		  		</div>
+			}		
+			
+			define page createOwner() {
+			init { }
+			var owner:= Owner{};
+			main
+			define body(){
+				section {
+					header {"Create New Owner"}
+					form{
+						
+						
+						par{ label("name "){ input(owner.name) } }			
+						
+						par{ label("age "){ input(owner.age) } }			
+						
+						submit create(owner) {"Create" }
+					}
+				}
+			}
+			
+			action create(owner : Owner)
+			{
+				
+				owner.save();
+				log("OwnerCreation Log: " + owner);
+				message("Owner has been created successfully.");				
+				
+				return createOwner(); 
+			}
+			}
+			
+					define ownerDetail(owner: Owner)
+					{
+						<div id="ownerSummary">
+				  		
+				  			
+				  			
+			 		
+				  		</div>
+					}		
+					
+					
+					
+			
+			
 	define page createCD() {
 	init { }
 	var cd:= CD{};
@@ -302,11 +424,9 @@ application exampleapp
 			header {"Create New CD"}
 			form{
 				
-				par{ label("price "){ input(cd.price) } }			
+				par{ label("dueDate "){ input(cd.dueDate) } }			
 				
-				par{ label("name "){ input(cd.name) } }			
-				
-				par{ label("genre "){ input(cd.genre) } }			
+				par{ label("owner "){ input(cd.owner) } }			
 				
 				
 				par{ label("len "){ input(cd.len) } }			
@@ -338,6 +458,13 @@ application exampleapp
 		  			
 		  			row{
 		  					column{	
+		  							output("dueDate : " + cd.dueDate)	
+		  						  }
+		  				}
+		  						
+		  			
+		  			row{
+		  					column{	
 		  							output("name : " + cd.name)	
 		  						  }
 		  				}
@@ -360,34 +487,114 @@ application exampleapp
 	
 	
 	section leftcategoriesmenu
-	
-	define leftsidemenu(){			
-		<ul>
-			for(genre :Genre ){
-				<li> navigate(listByGenre(genre)){ output(genre)} </li>
-			}
-		</ul>
-	}		
-	
-	
-	define page listByGenre(value : Genre){
-		main()
-		define body(){
-			table
-			{
+
+				define leftsidemenu(){
+		
+					<div id="accordion"> 
+						
+						
+								<div> 
+									<h3><a href="#">output("By Product")</a></h3> 
+									<div>
+													
+										<ul>
+											
+											<li> navigate(listByBook()){ output("Book")} </li>
+											
+											<li> navigate(listByCD()){ output("CD")} </li>
+											
+										</ul>
+									</div> 
+								</div> 
+						
+						
+						
+								<div> 
+									<h3><a href="#">output("By Genre")</a></h3> 
+									<div>
+													
+										<ul>
+											for(genre :Genre ){
+												<li> navigate(listByGenre(genre)){ output(genre)} </li>
+											}
+										</ul>
+									</div> 
+								</div> 
+						
+						
+								<div> 
+									<h3><a href="#">output("By Owner")</a></h3> 
+									<div>
+													
+										<ul>
+											for(owner :Owner ){
+												<li> navigate(listByOwner(owner)){ output(owner)} </li>
+											}
+										</ul>
+									</div> 
+								</div> 
+						
+					</div> 
+				}		
 				
-				for(entity :Book where entity.genre == value)
-				{
-					bookDetail(entity) 
+				
+				
+				define page listByBook(){
+					main()
+					define body(){
+						table
+						{
+							for(entity :Book)
+							{
+								bookDetail(entity) 
+							}						
+						}
+					}
 				}
 				
-				for(entity :CD where entity.genre == value)
-				{
-					cdDetail(entity) 
+				define page listByCD(){
+					main()
+					define body(){
+						table
+						{
+							for(entity :CD)
+							{
+								cdDetail(entity) 
+							}						
+						}
+					}
 				}
 				
-			}
-		}
-	}
-	
-	
+				
+				
+				define page listByGenre(value : Genre){
+					main()
+					define body(){
+						table
+						{
+							
+							for(entity :Book where entity.genre == value)
+							{
+								bookDetail(entity) 
+							}
+							
+						}
+					}
+				}
+				
+				define page listByOwner(value : Owner){
+					main()
+					define body(){
+						table
+						{
+							
+							for(entity :CD where entity.owner == value)
+							{
+								cdDetail(entity) 
+							}
+							
+						}
+					}
+				}
+				
+				

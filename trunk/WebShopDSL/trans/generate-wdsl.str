@@ -58,11 +58,25 @@ section pages
 define page root() {
   main()
   define body() {
+
     "Hello world!"
   }
 }			
 define main(){
-	includeCSS("layout.css")
+		includeCSS("layout.css")
+		includeCSS("jquery-ui.css")
+		includeJS("jquery.js")
+		includeJS("jquery-ui.js")
+
+		<script>
+		$(function(){
+					
+						// Accordion
+						$("#accordion").accordion({ header: "h3" });
+					
+					});
+		</script>  	
+		
 	<div id="wrapper">
          <div id="header">
 		 
