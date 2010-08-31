@@ -154,18 +154,19 @@ application exampleapp
 	
 			define sellableDetail(sellable: Sellable)
 			{
-				<div id="sellableSummary">
-		  		
-		  			
-		  			
-		  			row{
-		  					column{	
-		  							output("name : " + sellable.name)	
-		  						  }
-		  				}
-		  						
-		  			
-	 		
+				<div class="ui-widget ui-widget-container" >
+					<h3 class="ui-widget ui-widget-header  ui-corner-top">output(sellable.name)</h3>
+					
+					<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+			  		
+			  			
+			  			
+			  			par {output("name : " + sellable.name) }	
+			  			
+			  				  				
+			  			
+		 		
+			  		</div>
 		  		</div>
 			}		
 			
@@ -201,11 +202,15 @@ application exampleapp
 			
 					define genreDetail(genre: Genre)
 					{
-						<div id="genreSummary">
-				  		
-				  			
-				  			
-			 		
+						<div class="ui-widget ui-widget-container" >
+							<h3 class="ui-widget ui-widget-header  ui-corner-top">output(genre.name)</h3>
+							
+							<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+					  		
+					  			
+					  			
+				 		
+					  		</div>
 				  		</div>
 					}		
 					
@@ -251,39 +256,33 @@ application exampleapp
 	
 			define bookDetail(book: Book)
 			{
-				<div id="bookSummary">
-		  		
-		  			
-		  			row{
-		  					column{	
-		  							output("name : " + book.name)	
-		  						  }
-		  				}
-		  						
-		  			
-		  			
-		  			row{
-		  					column{	
-		  							output("publicationDate : " + book.publicationDate)	
-		  						  }
-		  				}
-		  						
-		  			
-		  			if (book.author != null)
-		  			{
-		  				<strong>output("List of author")</strong>
-		  				row{
-		  						column{	
-		  								for (value: Author in book.author)
-		  								{
-		  									par{output(value.name)}
-		  								}
-		  							  }
-		  					}
-		  				}
-		  						
-		  			
-	 		
+				<div class="ui-widget ui-widget-container" >
+					<h3 class="ui-widget ui-widget-header  ui-corner-top">output(book.name)</h3>
+					
+					<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+			  		
+			  			
+			  			par {output("name : " + book.name) }	
+			  			
+			  				  				
+			  			
+			  			
+			  			par {output("publicationDate : " + book.publicationDate) }	
+			  			
+			  				  				
+			  			
+			  			if (book.author != null)
+			  			{
+			  				<strong>output("List of author:")</strong>
+			  						for (value: Author in book.author)
+			  						{
+			  							par{output(value.name)}
+			  						}
+			  				}
+			  						
+			  			
+		 		
+			  		</div>
 		  		</div>
 			}		
 			
@@ -319,11 +318,15 @@ application exampleapp
 			
 					define authorDetail(author: Author)
 					{
-						<div id="authorSummary">
-				  		
-				  			
-				  			
-			 		
+						<div class="ui-widget ui-widget-container" >
+							<h3 class="ui-widget ui-widget-header  ui-corner-top">output(author.name)</h3>
+							
+							<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+					  		
+					  			
+					  			
+				 		
+					  		</div>
 				  		</div>
 					}		
 					
@@ -363,28 +366,26 @@ application exampleapp
 	
 			define giftDetail(gift: Gift)
 			{
-				<div id="giftSummary">
-		  		
-		  			
-		  			
-		  			row{
-		  					column{	
-		  							output("dueDate : " + gift.dueDate)	
-		  						  }
-		  				}
-		  						
-		  			
-		  			if (gift.owner != null)
-		  			{
-		  				row{
-		  						column{	
-		  								output("owner : " + gift.owner.name)	
-		  							  }
-		  					}
-		  				}
-		  						
-		  			
-	 		
+				<div class="ui-widget ui-widget-container" >
+					<h3 class="ui-widget ui-widget-header  ui-corner-top">output(gift.name)</h3>
+					
+					<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+			  		
+			  			
+			  			
+			  			par {output("dueDate : " + gift.dueDate) }	
+			  			
+			  				  				
+			  			
+			  			if (gift.owner != null)
+			  			{
+			  			
+			  					  				par{	output("owner : " + gift.owner.name)}	
+			  				  		}
+			  				  				
+			  			
+		 		
+			  		</div>
 		  		</div>
 			}		
 			
@@ -420,11 +421,15 @@ application exampleapp
 			
 					define ownerDetail(owner: Owner)
 					{
-						<div id="ownerSummary">
-				  		
-				  			
-				  			
-			 		
+						<div class="ui-widget ui-widget-container" >
+							<h3 class="ui-widget ui-widget-header  ui-corner-top">output(owner.name)</h3>
+							
+							<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+					  		
+					  			
+					  			
+				 		
+					  		</div>
 				  		</div>
 					}		
 					
@@ -470,35 +475,30 @@ application exampleapp
 	
 			define cdDetail(cd: CD)
 			{
-				<div id="cdSummary">
-		  		
-		  			
-		  			row{
-		  					column{	
-		  							output("dueDate : " + cd.dueDate)	
-		  						  }
-		  				}
-		  						
-		  			
-		  			if (cd.owner != null)
-		  			{
-		  				row{
-		  						column{	
-		  								output("owner : " + cd.owner.name)	
-		  							  }
-		  					}
-		  				}
-		  						
-		  			
-		  			
-		  			row{
-		  					column{	
-		  							output("type : " + cd.type)	
-		  						  }
-		  				}
-		  						
-		  			
-	 		
+				<div class="ui-widget ui-widget-container" >
+					<h3 class="ui-widget ui-widget-header  ui-corner-top">output(cd.name)</h3>
+					
+					<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+			  		
+			  			
+			  			par {output("dueDate : " + cd.dueDate) }	
+			  			
+			  				  				
+			  			
+			  			if (cd.owner != null)
+			  			{
+			  			
+			  					  				par{	output("owner : " + cd.owner.name)}	
+			  				  		}
+			  				  				
+			  			
+			  			
+			  			par {output("type : " + cd.type) }	
+			  			
+			  				  				
+			  			
+		 		
+			  		</div>
 		  		</div>
 			}		
 			
@@ -562,26 +562,24 @@ application exampleapp
 				define page listByBook(){
 					main()
 					define body(){
-						table
-						{
+						<div id="listAccordion">
 							for(entity :Book)
 							{
-								bookDetail(entity) 
+									bookDetail(entity)
 							}						
-						}
+						</div> 
 					}
 				}
 				
 				define page listByCD(){
 					main()
 					define body(){
-						table
-						{
+						<div id="listAccordion">
 							for(entity :CD)
 							{
-								cdDetail(entity) 
+									cdDetail(entity)
 							}						
-						}
+						</div> 
 					}
 				}
 				
@@ -590,30 +588,28 @@ application exampleapp
 				define page listByGenre(value : Genre){
 					main()
 					define body(){
-						table
-						{
+						<div id="listAccordion">
 							
 							for(entity :Book where entity.genre == value)
 							{
 								bookDetail(entity) 
 							}
 							
-						}
+						</div>
 					}
 				}
 				
 				define page listByOwner(value : Owner){
 					main()
 					define body(){
-						table
-						{
+						<div id="listAccordion">
 							
 							for(entity :CD where entity.owner == value)
 							{
 								cdDetail(entity) 
 							}
 							
-						}
+						</div>
 					}
 				}
 				
