@@ -23,7 +23,7 @@ shop exampleapp
 			name : String
 			age : Int
 
-		}
+		}(summary : "true") 
 	}
 
 	basic product type Gift {
