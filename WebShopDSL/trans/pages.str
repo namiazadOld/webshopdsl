@@ -139,18 +139,15 @@ rules
 		]
 		with varname:= <lower-case>name
 		
-		fieldDetailsUI(|varname) : a@SimpleProperty(propName, type, attr*) -> <map(rule1(|varname, propName));concat-strings> attr*
-			
-		fieldDetailsUI(|varname) : ComplexProperty(propName, type, attr*) -> <map(rule1(|varname, "name"));concat-strings> attr*	
-		fieldDetailsUI(|varname) : ListOfComplex(propName, type, attr*) -> $[]	
+		fieldDetailsUI(|varname) : a@SimpleProperty(propName, type, attr*) -> <map(ruleSimple1(|varname, propName));concat-strings> attr*
+		fieldDetailsUI(|varname) : ComplexProperty(propName, type, attr*) -> <map(ruleComplex1(|varname, propName));concat-strings> attr*	
+		fieldDetailsUI(|varname) : ListOfComplex(propName, ComplexType(type, prop*), attr*) -> <map(ruleListOfComplex1(|varname, propName, type));concat-strings> attr*
 		
-		rule1 (|varname, propName) : a@AttributeList(attr*, attr) -> result
-		with r1 := <map(rule2(|varname, propName));concat-strings>attr*;
-			 r2 := <rule2(|varname, propName)> attr;
+		ruleSimple1 (|varname, propName) : a@AttributeList(attr*, attr) -> result
+		with r1 := <map(ruleSimple2(|varname, propName));concat-strings>attr*;
+			 r2 := <ruleSimple2(|varname, propName)> attr;
 			 result := <concat-strings>[r1, r2]
-		
-		
-		rule2(|varname, propName) : Attribute("summary", "\"true\"") -> $[
+		ruleSimple2(|varname, propName) : Attribute("summary", "\"true\"") -> $[
 			row{
 	  			column{	
 	  					output("[propName] : " + [varname].[propName])	
@@ -158,7 +155,46 @@ rules
 	  		}
 	  				
 		]
-		rule2(|varname, propName) : Attribute(t1, t2) -> $[]
+		ruleSimple2(|varname, propName) : Attribute(t1, t2) -> $[]
+		
+		ruleComplex1 (|varname, propName) : a@AttributeList(attr*, attr) -> result
+		with r1 := <map(ruleComplex2(|varname, propName));concat-strings>attr*;
+			 r2 := <ruleComplex2(|varname, propName)> attr;
+			 result := <concat-strings>[r1, r2]
+		ruleComplex2(|varname, propName) : Attribute("summary", "\"true\"") -> $[
+			if ([varname].[propName] != null)
+			{
+				row{
+		  			column{	
+		  					output("[propName] : " + [varname].[propName].name)	
+		  				  }
+		  		}
+	  		}
+	  				
+		]
+		ruleComplex2(|varname, propName) : Attribute(t1, t2) -> $[]
+		
+		ruleListOfComplex1 (|varname, propName, propType) : a@AttributeList(attr*, attr) -> result
+		with r1 := <map(ruleListOfComplex2(|varname, propName, propType));concat-strings>attr*;
+			 r2 := <ruleListOfComplex2(|varname, propName, propType)> attr;
+			 result := <concat-strings>[r1, r2]
+		ruleListOfComplex2(|varname, propName, propType) : Attribute("summary", "\"true\"") -> $[
+			if ([varname].[propName] != null)
+			{
+				<strong>output("List of [propName]:")</strong>
+				row{
+		  			column{	
+		  					for ([value]: [propType] in [varname].[propName])
+		  					{
+		  						par{output([value].name)}
+		  					}
+		  				  }
+		  		}
+	  		}
+	  				
+		]
+		with value:= $[value]
+		ruleListOfComplex2(|varname, propName, propType) : Attribute(t1, t2) -> $[]
 		
 		
 		//Filter the product on special base
