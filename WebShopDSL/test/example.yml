@@ -269,6 +269,20 @@ application exampleapp
 		  				}
 		  						
 		  			
+		  			if (book.author != null)
+		  			{
+		  				<strong>output("List of author")</strong>
+		  				row{
+		  						column{	
+		  								for (value: Author in book.author)
+		  								{
+		  									par{output(value.name)}
+		  								}
+		  							  }
+		  					}
+		  				}
+		  						
+		  			
 	 		
 		  		</div>
 			}		
@@ -360,10 +374,13 @@ application exampleapp
 		  				}
 		  						
 		  			
-		  			row{
-		  					column{	
-		  							output("name : " + gift.name)	
-		  						  }
+		  			if (gift.owner != null)
+		  			{
+		  				row{
+		  						column{	
+		  								output("owner : " + gift.owner.name)	
+		  							  }
+		  					}
 		  				}
 		  						
 		  			
@@ -463,10 +480,13 @@ application exampleapp
 		  				}
 		  						
 		  			
-		  			row{
-		  					column{	
-		  							output("name : " + cd.name)	
-		  						  }
+		  			if (cd.owner != null)
+		  			{
+		  				row{
+		  						column{	
+		  								output("owner : " + cd.owner.name)	
+		  							  }
+		  					}
 		  				}
 		  						
 		  			
