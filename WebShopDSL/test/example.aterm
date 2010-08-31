@@ -6,7 +6,11 @@ Shop(
 , [ BasicProduct(
       "Sellable"
     , [ SimpleProperty("price", Float(), [])
-      , SimpleProperty("name", String(), [])
+      , SimpleProperty(
+          "name"
+        , String()
+        , [AttributeList([], Attribute("summary", "\"true\""))]
+        )
       , ComplexProperty(
           "genre"
         , ComplexType(
@@ -20,7 +24,12 @@ Shop(
   , Product(
       "Book"
     , ["Sellable"]
-    , [ ListOfComplex(
+    , [ SimpleProperty(
+          "publicationDate"
+        , Date()
+        , [AttributeList([], Attribute("summary", "\"true\""))]
+        )
+      , ListOfComplex(
           "author"
         , ComplexType(
             "Author"
@@ -30,13 +39,30 @@ Shop(
         )
       ]
     )
+  , BasicProduct(
+      "Gift"
+    , [ SimpleProperty(
+          "dueDate"
+        , Date()
+        , [AttributeList([], Attribute("summary", "\"true\""))]
+        )
+      , ComplexProperty(
+          "owner"
+        , ComplexType(
+            "Owner"
+          , [SimpleProperty("name", String(), []), SimpleProperty("age", Int(), [])]
+          )
+        , [AttributeList([], Attribute("summary", "\"true\""))]
+        )
+      ]
+    )
   , Product(
       "CD"
-    , ["Sellable"]
+    , ["Gift"]
     , [ SimpleProperty(
           "len"
         , Int()
-        , [AttributeList([Attribute("summary", "\"true\"")], Attribute("kir", "\"as\""))]
+        , [AttributeList([], Attribute("title", "\"true\""))]
         )
       , SimpleProperty(
           "type"
@@ -48,5 +74,5 @@ Shop(
     )
   ]
 , Some(GroupByType())
-, [GroupByProperty("Sellable", "Genre")]
+, [GroupByProperty("Sellable", "genre"), GroupByProperty("Gift", "owner")]
 )

@@ -26,7 +26,15 @@ shop exampleapp
 		}
 	}
 
-	product type CD : Sellable
+	basic product type Gift {
+		dueDate : Date (summary : "true" )
+		owner 	: Owner {
+			name : String
+			age : Int
+			
+		}(summary : "true") 
+	}
+	product type CD : Gift
 	{
 		len : Int (title : "true")
 		type : String (summary : "true" )
@@ -35,6 +43,8 @@ shop exampleapp
 
 	group by type
 	group by property Sellable.genre
+	group by property Gift.owner
+	
 	
 	
 }
