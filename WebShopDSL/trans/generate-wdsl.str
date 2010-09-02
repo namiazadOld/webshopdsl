@@ -6,6 +6,7 @@ module generate-wdsl
   			libstratego-aterm
   			lib/editor-common.generated
 			pages
+			admin
 	strategies
 		
 		transform-to-wdsl:
