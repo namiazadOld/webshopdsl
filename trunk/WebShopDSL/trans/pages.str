@@ -13,7 +13,7 @@ rules
 				section productPages
 				
 				[<map(pg);concat-strings>productType*]
-				
+				[<map(pgEdit);concat-strings>productType*]
 				section leftcategoriesmenu
 
 				define leftsidemenu(){
@@ -33,6 +33,10 @@ rules
 		
 		pg	: 	Product(name, base, prop*) -> <createPage(| base, prop*)>name
 
+		pgEdit	:	BasicProduct(name, prop*) -> <editPage(|[], prop*)>name
+		
+		pgEdit	: 	Product(name, base, prop*) -> <editPage(| base, prop*)>name
+		
 
 		
 		complexCRUDPages: l@ListOfComplex(name, ComplexType(typeName, prop*), attr*) -> <createPage(| [], prop*)>typeName
@@ -40,7 +44,13 @@ rules
 		complexCRUDPages: l@ComplexProperty(name, ComplexType(typeName, prop*), attr*) -> <createPage(| [], prop*)>typeName
 
 		complexCRUDPages: l@SimpleProperty(name, type, attr*) -> $[]
+
+		complexEditPages: l@ListOfComplex(name, ComplexType(typeName, prop*), attr*) -> <editPage(| [], prop*)>typeName
 		
+		complexEditPages: l@ComplexProperty(name, ComplexType(typeName, prop*), attr*) -> <editPage(| [], prop*)>typeName
+
+		complexEditPages: l@SimpleProperty(name, type, attr*) -> $[]
+				
 				
 		baseCheck(|entity) : [] -> $[]
 		baseCheck(|entity) : [base] -> $[[basic]]
@@ -133,15 +143,47 @@ rules
 		  		
 		  			[<baseCheck2(|varname)>base]
 		  			[<map(fieldDetailsUI(|varname));concat-strings>prop*]
-	 		
+	 				navigate(edit[name]([varname])){output("Edit")}
 		  		</div>
 	  		</div>
 		}		
 		
 		[<map(complexCRUDPages)>prop*]
+
+		[<map(complexEditPages)>prop*]
 		
 		]
 		with varname:= <lower-case>name
+
+
+		editPage(|base, prop*): name ->  $[
+			define page edit[name]([varname] : [name]) {
+			init { }
+			main
+			define body(){
+				section {
+					header {"Edit [name]"}
+					form{
+						[<baseCheck(|varname)>base]
+						[<map(pg(|varname))>prop*]
+						submit create([varname]) {"Create" }
+					}
+				}
+			}
+			
+			action create([varname] : [name])
+			{
+				
+				[varname].save();
+				log("[name]Creation Log: " + [varname]);
+				message("[name] has been created successfully.");				
+				
+				return [varname]Profile([varname]); 
+			}
+		} ]
+		with varname:= <lower-case>name 
+
+
 		
 		fieldDetailsUI(|varname) : a@SimpleProperty(propName, type, attr*) -> <map(ruleSimple1(|varname, propName));concat-strings> attr*
 		fieldDetailsUI(|varname) : ComplexProperty(propName, type, attr*) -> <map(ruleComplex1(|varname, propName));concat-strings> attr*	
