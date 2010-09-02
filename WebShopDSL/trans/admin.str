@@ -1,0 +1,12 @@
+module admin
+imports include/WebShopDSL
+  		libstratego-lib
+		libstratego-gpp
+		libstratego-aterm
+		lib/editor-common.generated
+		generate-wdsl
+		
+
+rules
+	
+	admin: Shop(t, t, t, t, t, t, t) -> $[]
