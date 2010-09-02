@@ -2,11 +2,16 @@ module WebShopDSL
 
 signature
   constructors
-                    : Attribute -> Attribute6
-                    : AttributeList -> AttributeList6
-                    : ID -> ID20
+                    : Attribute -> Attribute1
+                    : AttributeList -> AttributeList1
+                    : ID -> ID1
+                    : Entity -> Entity1
+    GroupByProperty : ID * ID -> GroupByProperty
+    GroupByType     : GroupByType
+    ProductEntity   : ID -> Entity
     Attribute       : ID * STRING -> Attribute
-    AttributeList   : List(Attribute6) * Attribute -> AttributeList
+    AttributeList   : List(Attribute1) * Attribute -> AttributeList
+    ComplexType     : ID * List(SimpleProperty) -> ComplexType
     Email           : SimpleType
     LongString      : SimpleType
     Image           : SimpleType
@@ -14,17 +19,20 @@ signature
     Date            : SimpleType
     Int             : SimpleType
     String          : SimpleType
-    ListOfSimple    : ID * SimpleType * Option(AttributeList6) -> ListProperty
-    SimpleProperty  : ID * SimpleType * Option(AttributeList6) -> SimpleProperty
+    ListOfComplex   : ID * ComplexType * Option(AttributeList1) -> ListProperty
+    ComplexProperty : ID * ComplexType * Option(AttributeList1) -> ComplexProperty
+    SimpleProperty  : ID * SimpleType * Option(AttributeList1) -> SimpleProperty
                     : ListProperty -> Property
+                    : ComplexProperty -> Property
                     : SimpleProperty -> Property
-    Product         : ID * List(Property) -> ProductType
-    Sells           : List(ID20) * ID -> Sells
-    ShopDescription : SupportedClause
-    ShopTitle       : SupportedClause
-    ShopLogo        : SupportedClause
-    With            : SupportedClause * STRING -> With
-    Shop            : ID * List(With) * Sells * List(ProductType) -> Start
+    BasicProduct    : ID * List(Property) -> ProductType
+    Product         : ID * Option(ID1) * List(Property) -> ProductType
+    Sells           : List(Entity1) * Entity -> Sells
+    ShopDescription : SupportedShopProperty
+    ShopTitle       : SupportedShopProperty
+    ShopLogo        : SupportedShopProperty
+    ShopProperty    : SupportedShopProperty * STRING -> ShopProperty
+    Shop            : ID * List(ShopProperty) * Sells * ListStarOfBasicProductType1 * List(ProductType) * Option(GroupByType) * List(GroupByProperty) -> Start
                     : String -> STRING
                     : String -> ID
 
