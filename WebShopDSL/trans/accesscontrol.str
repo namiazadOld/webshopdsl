@@ -1,4 +1,4 @@
-module admin
+module accesscontrol
 imports include/WebShopDSL
   		libstratego-lib
 		libstratego-gpp
