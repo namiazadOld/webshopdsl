@@ -165,7 +165,7 @@ application exampleapp
 			  			
 			  				  				
 			  			
-		 		
+		 				navigate(editSellable(sellable)){output("Edit")}
 			  		</div>
 		  		</div>
 			}		
@@ -209,14 +209,46 @@ application exampleapp
 					  		
 					  			
 					  			
-				 		
+				 				navigate(editGenre(genre)){output("Edit")}
 					  		</div>
 				  		</div>
 					}		
 					
 					
+			
+					
 					
 			
+	
+			
+			define page editGenre(genre : Genre) {
+			init { }
+			main
+			define body(){
+				section {
+					header {"Edit Genre"}
+					form{
+						
+						
+						par{ label("name "){ input(genre.name) } }			
+						
+						par{ label("desc "){ input(genre.desc) } }			
+						
+						submit create(genre) {"Create" }
+					}
+				}
+			}
+			
+			action create(genre : Genre)
+			{
+				
+				genre.save();
+				log("GenreCreation Log: " + genre);
+				message("Genre has been created successfully.");				
+				
+				return genreProfile(genre); 
+			}
+			}
 			
 	define page createBook() {
 	init { }
@@ -281,7 +313,7 @@ application exampleapp
 			  				}
 			  						
 			  			
-		 		
+		 				navigate(editBook(book)){output("Edit")}
 			  		</div>
 		  		</div>
 			}		
@@ -325,14 +357,46 @@ application exampleapp
 					  		
 					  			
 					  			
-				 		
+				 				navigate(editAuthor(author)){output("Edit")}
 					  		</div>
 				  		</div>
 					}		
 					
 					
+			
+					
 					
 			
+	
+			
+			define page editAuthor(author : Author) {
+			init { }
+			main
+			define body(){
+				section {
+					header {"Edit Author"}
+					form{
+						
+						
+						par{ label("name "){ input(author.name) } }			
+						
+						par{ label("age "){ input(author.age) } }			
+						
+						submit create(author) {"Create" }
+					}
+				}
+			}
+			
+			action create(author : Author)
+			{
+				
+				author.save();
+				log("AuthorCreation Log: " + author);
+				message("Author has been created successfully.");				
+				
+				return authorProfile(author); 
+			}
+			}
 			
 	define page createGift() {
 	init { }
@@ -384,7 +448,7 @@ application exampleapp
 			  				  		}
 			  				  				
 			  			
-		 		
+		 				navigate(editGift(gift)){output("Edit")}
 			  		</div>
 		  		</div>
 			}		
@@ -428,14 +492,46 @@ application exampleapp
 					  		
 					  			
 					  			
-				 		
+				 				navigate(editOwner(owner)){output("Edit")}
 					  		</div>
 				  		</div>
 					}		
 					
 					
+			
+					
 					
 			
+	
+			
+			define page editOwner(owner : Owner) {
+			init { }
+			main
+			define body(){
+				section {
+					header {"Edit Owner"}
+					form{
+						
+						
+						par{ label("name "){ input(owner.name) } }			
+						
+						par{ label("age "){ input(owner.age) } }			
+						
+						submit create(owner) {"Create" }
+					}
+				}
+			}
+			
+			action create(owner : Owner)
+			{
+				
+				owner.save();
+				log("OwnerCreation Log: " + owner);
+				message("Owner has been created successfully.");				
+				
+				return ownerProfile(owner); 
+			}
+			}
 			
 	define page createCD() {
 	init { }
@@ -497,15 +593,143 @@ application exampleapp
 			  			
 			  				  				
 			  			
-		 		
+		 				navigate(editCD(cd)){output("Edit")}
 			  		</div>
 		  		</div>
 			}		
 			
 			
+	
+			
 			
 	
 	
+	define page editSellable(sellable : Sellable) {
+	init { }
+	main
+	define body(){
+		section {
+			header {"Edit Sellable"}
+			form{
+				
+				
+				par{ label("price "){ input(sellable.price) } }			
+				
+				par{ label("name "){ input(sellable.name) } }			
+				
+				par{ label("genre "){ input(sellable.genre) } }			
+				
+				submit create(sellable) {"Create" }
+			}
+		}
+	}
+	
+	action create(sellable : Sellable)
+	{
+		
+		sellable.save();
+		log("SellableCreation Log: " + sellable);
+		message("Sellable has been created successfully.");				
+		
+		return sellableProfile(sellable); 
+	}
+	}
+	define page editBook(book : Book) {
+	init { }
+	main
+	define body(){
+		section {
+			header {"Edit Book"}
+			form{
+				
+				par{ label("price "){ input(book.price) } }			
+				
+				par{ label("name "){ input(book.name) } }			
+				
+				par{ label("genre "){ input(book.genre) } }			
+				
+				
+				par{ label("publicationDate "){ input(book.publicationDate) } }			
+				
+				par{ label("author "){ input(book.author) } }			
+				
+				submit create(book) {"Create" }
+			}
+		}
+	}
+	
+	action create(book : Book)
+	{
+		
+		book.save();
+		log("BookCreation Log: " + book);
+		message("Book has been created successfully.");				
+		
+		return bookProfile(book); 
+	}
+	}
+	define page editGift(gift : Gift) {
+	init { }
+	main
+	define body(){
+		section {
+			header {"Edit Gift"}
+			form{
+				
+				
+				par{ label("dueDate "){ input(gift.dueDate) } }			
+				
+				par{ label("owner "){ input(gift.owner) } }			
+				
+				submit create(gift) {"Create" }
+			}
+		}
+	}
+	
+	action create(gift : Gift)
+	{
+		
+		gift.save();
+		log("GiftCreation Log: " + gift);
+		message("Gift has been created successfully.");				
+		
+		return giftProfile(gift); 
+	}
+	}
+	define page editCD(cd : CD) {
+	init { }
+	main
+	define body(){
+		section {
+			header {"Edit CD"}
+			form{
+				
+				par{ label("dueDate "){ input(cd.dueDate) } }			
+				
+				par{ label("owner "){ input(cd.owner) } }			
+				
+				
+				par{ label("len "){ input(cd.len) } }			
+				
+				par{ label("type "){ input(cd.type) } }			
+				
+				par{ label("producer "){ input(cd.producer) } }			
+				
+				submit create(cd) {"Create" }
+			}
+		}
+	}
+	
+	action create(cd : CD)
+	{
+		
+		cd.save();
+		log("CDCreation Log: " + cd);
+		message("CD has been created successfully.");				
+		
+		return cdProfile(cd); 
+	}
+	}
 	section leftcategoriesmenu
 
 				define leftsidemenu(){
