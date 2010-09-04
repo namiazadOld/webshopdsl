@@ -17,10 +17,11 @@ shop exampleapp
 	
 	product type Book : Sellable
 	{
+		publicationName : String
 		publicationDate : Date (summary : "true" ) 
 		author[] : Author
 		{
-			name : String
+			name : String (summary : "true" )
 			age : Int
 
 		}(summary : "true", navigable : "true") 
