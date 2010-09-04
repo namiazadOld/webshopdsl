@@ -1,56 +1,60 @@
 module generate-wdsl
-	
+
 	imports include/WebShopDSL
 	  		libstratego-lib
   			libstratego-gpp
   			libstratego-aterm
   			lib/editor-common.generated
 			pages
-			accesscontrol
 	strategies
-		
-		transform-to-wdsl:
-        (selected, position, ast, path, project-path) -> (filename, <concat-strings>[entities,pages])
-        with
-          filename := <guarantee-extension(|"yml")> path;
-          entities := <map; ws-gen> selected;
-          pages := <pagesui> selected
 
+		transform-to-wdsl:
+        (selected, position, ast, path, project-path) -> (filename, result)
+        with debug(!1);
+          filename := <guarantee-extension(|"yml")> path;
+          debug(!2);entities := <map; ws-gen> ast;
+          debug(!3);pages := <pagesui> ast
+       ; result := <debug(!"STRINGS");concat-strings>[entities, pages]
+;debug(!4)
 	rules
 		map = alltd(declare)
-		
+
         declare:
         	p@BasicProduct(name, prop*) -> p
         	with <map(declare-property(|name))>prop*
-        
+
         declare-property(|className):
         	c@ComplexProperty(name, type, attr*) -> c
         	with key := <concat-strings>[className, ".", name]; rules (GetProperty: key -> c)
-        	
+
         declare-property(|className):
         	c@SimpleProperty(name, type, attr*) -> c
-        	
+
         declare-property(|className):
         	c@ListOfComplex(name, type, attr*) -> c
-            
-        
+
+
 		scan= topdown(try(\ComplexType(name, prop*) -> $[chos]\))
 		pagesui= alltd(pg)
-		
+
 		ws-gen = alltd(ws)
-		ws : Shop(shopName, with*, sells, basicType*, productType*, groupByType*, groupByProp*) -> 
+		ws : Shop(shopName, with*, sells, basicType*, productType*, groupByType*, groupByProp*) ->
 			$[application [shopName]
 				imports templates
-				[<map(ws)> with*]
-				
-				[<map(ws)>productType*]
-	
-			]
+				[props]
 
-		ws : ShopProperty(prop, value) -> <ws(|value)> prop
+				[producttypes]
+
+			]
+	    with props := <map(ws)> with*;debug(!"with done")
+	       ; producttypes := <map(ws <+ debug(!"ws failed on: ");fail)> productType*
+
+		ws : ShopProperty(prop, value) -> result
+		with result := <ws(|value)> prop
+
 		ws(|value) : ShopDescription()	-> $[
 			description {
-				[value]	
+				[value]
 			}
 		]
 		ws(|value) : ShopLogo()	-> $[
@@ -62,7 +66,7 @@ define page root() {
 
     "Hello world!"
   }
-}			
+}
 define main(){
 		includeCSS("layout.css")
 		includeCSS("jquery-ui.css")
@@ -71,38 +75,38 @@ define main(){
 
 		<script>
 		$(function(){
-					
+
 						// Accordion
 						$("#accordion").accordion({ header: "h3" });
-					
+
 					});
-		</script>  	
-		
+		</script>
+
 	<div id="wrapper">
          <div id="header">
-		 
-		       mainheader()		 
-			   
+
+		       mainheader()
+
 		 </div>
-		 
+
          	<div id="navigation">
-		 
+
 		      <div id="tabs">
 //		      	applicationmenu()
 		      </div>
 		</div>
-		     
-		
+
+
 		 <div id="leftcolumn">
 			<div class="arrowgreen">
 				leftsidemenu()
 			</div>
-		 
+
 		 </div>
 		 <div id="content">
-		      
-			  body() 
-		 
+
+			  body()
+
 		 </div>
 		 <div id="rightcolumn">
 //		 	search()
@@ -110,8 +114,8 @@ define main(){
 		 </div>
 		 <div id="footer">
 //		       		footer()
-			   <p />"powered by " <a href="http://webdsl.org">"WebDSL"</a><p />		
-			    
+			   <p />"powered by " <a href="http://webdsl.org">"WebDSL"</a><p />
+
 	     </div>   </div>
 }
 
@@ -121,55 +125,106 @@ define mainheader() {
     image([value])
   }
 }
-		 			
+
 define body(){
-	
-}		 			
+
+}
 		]
 		ws(|value) : ShopTitle()	-> $[]
 
 
 	//	ws	:	Sells(items*, item) -> $[[<map(ws);separate-by(|"\n");concat-strings>items*]
 	//	 [<ws>item]]
-		
+
 		ws	:	BasicProduct(name, prop*) -> $[entity [name]{
-			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
+			[<map(ws(|name));separate-by(|"\n");concat-strings>prop* ]
 		}
-		[<map(complexExtract)>prop*]
+		[<map(complexExtract(|name))>prop*]
 		]
 		with  rules ( BasicProductMap : name -> prop* )
-		 
-		ws	: 	Product(name, [], prop*) ->$[entity [name] {
-			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
+
+		ws	:
+		  Product(name, optbase, prop*) ->     //[] [base]
+		$[entity [name]: [base] {
+			[properties]
 		}
-		[<map(complexExtract)>prop*]
+		[complexproperties]
 		]
-		
-		ws	: 	Product(name, [base], prop*) ->$[entity [name]: [base] {
-			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
-		}
-		[<map(complexExtract)>prop*]
-		]
-			
-		
-		complexExtract: l@ListOfComplex(name, ComplexType(typeName, prop*), attr*) -> $[entity [typeName]{
-			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
+		with debug(!"product rule");if <?None()> optbase
+		     then base := ""
+		     else Some(base) := optbase   // !optbase; ?[base]
+		     end
+		   ; properties := <map(ws(|name));separate-by(|"\n");concat-strings>prop*
+           ; complexproperties := <map(complexExtract(|name))> prop*
+
+		complexExtract(|className): l@ListOfComplex(name, ComplexType(typeName, prop*), attr*) -> $[entity [typeName]{
+			[<map(ws(|name));separate-by(|"\n");concat-strings>prop* ]
+			[result]
 		}
 
 		]
+		with
+			debug(!500);result := [<inverseHelper(|className)>attr*]
 		
-		complexExtract: l@ComplexProperty(name, ComplexType(typeName, prop*), attr*) -> $[entity [typeName]{
-			[<map(ws);separate-by(|"\n");concat-strings>prop* ]
+		complexExtract(|className): l@ComplexProperty(name, ComplexType(typeName, prop*), attr*) -> $[entity [typeName]{
+			[<map(ws(|name));separate-by(|"\n");concat-strings>prop* ]
+			[result]
 		}
-		
-		]
 
-		complexExtract: l@SimpleProperty(name, type, attr*) -> $[]
-			
-		ws	:	SimpleProperty(name, type, attr*) -> $[[name] :: [<ws>type]]
-		ws	:	ComplexProperty(name, ComplexType(typeName, prop*), attr*)	-> $[[name] -> [typeName]]
-		ws	: 	ListOfComplex(name, ComplexType(typeName, prop*), attr*)	-> $[ [name]->Set<[typeName]>]
+		]
+		with
+			debug(!501);result := [<inverseHelper(|className)>attr*]
 		
+		
+		inverseHelper(|className) : None() -> $[]
+		inverseHelper(|className) : Some(AttributeList(attr*, attr)) -> result
+		with
+			debug(!502);r1 := <map(inverse(|className));concat-strings>attr*;
+		    debug(!503);r2 := <inverse(|className)> attr;
+		    debug(!504);result := <concat-strings>[r1, r2]; 
+		    debug(!505)
+					
+		
+		inverse(|className) : Attribute("navigable", "\"true\"") -> result
+		with
+		    lower:= <lower-case>className; 
+			debug(!506); result := $[[lower]List->Set<[className]>]
+			
+		inverse(|className) : Attribute(t1, t2) -> result
+		with
+			debug(!507);result:= $[] 
+
+		complexExtract(|className): l@SimpleProperty(name, type, attr*) -> $[]
+
+		ws(|className)	:	SimpleProperty(name, type, attr*) -> $[[name] :: [<ws>type]]
+		
+		
+		ws(|className)	:	ComplexProperty(name, ComplexType(typeName, prop*), attr*)	-> $[[name] -> [typeName][inverseDec]]
+		with
+			debug(!508); inverseDec := [<inverseHelper4Declaration(|typeName, className)>attr*]
+		
+		
+		ws(|className)	: 	ListOfComplex(name, ComplexType(typeName, prop*), attr*)	-> $[ [name]->Set<[typeName]>[inverseDec]]
+		with
+			debug(!509); inverseDec := [<inverseHelper4Declaration(|typeName, className)>attr*]
+		
+		inverseHelper4Declaration(|typeName, className): None() -> $[]
+		inverseHelper4Declaration(|typeName, className): Some(AttributeList(attr*, attr)) -> result
+		with
+			debug(!510);r1 := <map(inverseDeclaration(|typeName, className));concat-strings>attr*;
+		    debug(!511);r2 := <inverseDeclaration(|typeName, className)> attr;
+		    debug(!512);result := <concat-strings>[r1, r2]; 
+		    debug(!513)
+		    
+		inverseDeclaration(|typeName, className) : Attribute("navigable", "\"true\"") -> result
+		with
+		    lower:= <lower-case>className; 
+			debug(!514); result := $[(inverse = [typeName].[lower]List)]
+			
+		inverseDeclaration(|typeName, className) : Attribute(t1, t2) -> result
+		with
+			debug(!515);result:= $[] 
+
 		ws	:	String()	->	$[String]
 		ws	:	Int()		->	$[Int]
 		ws	:	Float()		->	$[Float]
@@ -177,6 +232,5 @@ define body(){
 		ws	:	Image()		->	$[Image]
 		ws	:	LongString()->	$[WikiText]
 		ws	:	Email()		->	$[Email]
-		
 
-		
+
