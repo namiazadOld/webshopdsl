@@ -9,7 +9,7 @@ application exampleapp
 	
 	    "Hello world!"
 	  }
-	}			
+	}
 	define main(){
 			includeCSS("layout.css")
 			includeCSS("jquery-ui.css")
@@ -18,38 +18,38 @@ application exampleapp
 	
 			<script>
 			$(function(){
-						
+	
 							// Accordion
 							$("#accordion").accordion({ header: "h3" });
-						
+	
 						});
-			</script>  	
-			
+			</script>
+	
 		<div id="wrapper">
 	         <div id="header">
-			 
-			       mainheader()		 
-				   
+	
+			       mainheader()
+	
 			 </div>
-			 
+	
 	         	<div id="navigation">
-			 
+	
 			      <div id="tabs">
 	//		      	applicationmenu()
 			      </div>
 			</div>
-			     
-			
+	
+	
 			 <div id="leftcolumn">
 				<div class="arrowgreen">
 					leftsidemenu()
 				</div>
-			 
+	
 			 </div>
 			 <div id="content">
-			      
-				  body() 
-			 
+	
+				  body()
+	
 			 </div>
 			 <div id="rightcolumn">
 	//		 	search()
@@ -57,8 +57,8 @@ application exampleapp
 			 </div>
 			 <div id="footer">
 	//		       		footer()
-				   <p />"powered by " <a href="http://webdsl.org">"WebDSL"</a><p />		
-				    
+				   <p />"powered by " <a href="http://webdsl.org">"WebDSL"</a><p />
+	
 		     </div>   </div>
 	}
 	
@@ -68,719 +68,507 @@ application exampleapp
 	    image("/images/logo.png")
 	  }
 	}
-			 			
+	
 	define body(){
-		
-	}		 			
+	
+	}
 	
 	description {
-		"Best Shop"	
+		"Best Shop"
 	}
 	
-	
-	entity Sellable{
-	price :: Float
-	name :: String
-	genre -> Genre
-	}
-	entity Genre{
-	name :: String
-	desc :: String
-	}
-	
-	
-	entity Book: Sellable {
-	publicationDate :: Date
-	author->Set<Author>
-	}
-	entity Author{
-	name :: String
-	age :: Int
-	}
-	
-	
-	entity Gift{
-	dueDate :: Date
-	owner -> Owner
-	}
-	entity Owner{
-	name :: String
-	age :: Int
-	}
-	
-	
-	entity CD: Gift {
-	len :: Int
-	type :: String
-	producer :: String
-	}
-	
-	
+
+				entity Sellable{
+				price :: Float
+				name :: String
+				genre -> Genre
+				}
+				entity Genre{
+				name :: String
+				desc :: String
+				
+				}
+				
+				
+				entity Book: Sellable {
+					publicationDate :: Date
+					author->Set<Author>(inverse = Author.bookList)
+				}
+				entity Author{
+				name :: String
+				age :: Int
+				bookList->Set<Book>
+				}
+				
+				
+				entity Gift{
+				dueDate :: Date
+				owner -> Owner
+				}
+				entity Owner{
+				name :: String
+				age :: Int
+				
+				}
+				
+				
+				entity CD: Gift {
+					len :: Int
+					type :: String
+					producer :: String
+				}
+				
+				
 
 
 	section productPages
-	
-	define page createSellable() {
-	init { }
-	var sellable:= Sellable{};
-	main
-	define body(){
-		section {
-			header {"Create New Sellable"}
-			form{
-				
-				
-				par{ label("price "){ input(sellable.price) } }			
-				
-				par{ label("name "){ input(sellable.name) } }			
-				
-				par{ label("genre "){ input(sellable.genre) } }			
-				
-				submit create(sellable) {"Create" }
-			}
-		}
-	}
-	
-	action create(sellable : Sellable)
-	{
-		
-		sellable.save();
-		log("SellableCreation Log: " + sellable);
-		message("Sellable has been created successfully.");				
-		
-		return createSellable(); 
-	}
-	}
-	
-			define sellableDetail(sellable: Sellable)
-			{
-				<div class="ui-widget ui-widget-container" >
-					<h3 class="ui-widget ui-widget-header  ui-corner-top">output(sellable.name)</h3>
-					
-					<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
-			  		
-			  			
-			  			
-			  			par {output("name : " + sellable.name) }	
-			  			
-			  				  				
-			  			
-		 				navigate(editSellable(sellable)){output("Edit")}
-			  		</div>
-		  		</div>
-			}		
-			
-			define page createGenre() {
-			init { }
-			var genre:= Genre{};
-			main
-			define body(){
-				section {
-					header {"Create New Genre"}
-					form{
-						
-						
-						par{ label("name "){ input(genre.name) } }			
-						
-						par{ label("desc "){ input(genre.desc) } }			
-						
-						submit create(genre) {"Create" }
-					}
-				}
-			}
-			
-			action create(genre : Genre)
-			{
-				
-				genre.save();
-				log("GenreCreation Log: " + genre);
-				message("Genre has been created successfully.");				
-				
-				return createGenre(); 
-			}
-			}
-			
-					define genreDetail(genre: Genre)
-					{
-						<div class="ui-widget ui-widget-container" >
-							<h3 class="ui-widget ui-widget-header  ui-corner-top">output(genre.name)</h3>
+
+				define page createBook() {
+				init { }
+				var book:= Book{};
+				main
+				define body(){
+					section {
+						header {"Create New Book"}
+						form{
 							
-							<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
-					  		
-					  			
-					  			
-				 				navigate(editGenre(genre)){output("Edit")}
-					  		</div>
-				  		</div>
-					}		
-					
-					
-			
-					
-					
-			
-	
-			
-			define page editGenre(genre : Genre) {
-			init { }
-			main
-			define body(){
-				section {
-					header {"Edit Genre"}
-					form{
-						
-						
-						par{ label("name "){ input(genre.name) } }			
-						
-						par{ label("desc "){ input(genre.desc) } }			
-						
-						submit create(genre) {"Create" }
-					}
-				}
-			}
-			
-			action create(genre : Genre)
-			{
-				
-				genre.save();
-				log("GenreCreation Log: " + genre);
-				message("Genre has been created successfully.");				
-				
-				return genreProfile(genre); 
-			}
-			}
-			
-	define page createBook() {
-	init { }
-	var book:= Book{};
-	main
-	define body(){
-		section {
-			header {"Create New Book"}
-			form{
-				
-				par{ label("price "){ input(book.price) } }			
-				
-				par{ label("name "){ input(book.name) } }			
-				
-				par{ label("genre "){ input(book.genre) } }			
-				
-				
-				par{ label("publicationDate "){ input(book.publicationDate) } }			
-				
-				par{ label("author "){ input(book.author) } }			
-				
-				submit create(book) {"Create" }
-			}
-		}
-	}
-	
-	action create(book : Book)
-	{
-		
-		book.save();
-		log("BookCreation Log: " + book);
-		message("Book has been created successfully.");				
-		
-		return createBook(); 
-	}
-	}
-	
-			define bookDetail(book: Book)
-			{
-				<div class="ui-widget ui-widget-container" >
-					<h3 class="ui-widget ui-widget-header  ui-corner-top">output(book.name)</h3>
-					
-					<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
-			  		
-			  			
-			  			par {output("name : " + book.name) }	
-			  			
-			  				  				
-			  			
-			  			
-			  			par {output("publicationDate : " + book.publicationDate) }	
-			  			
-			  				  				
-			  			
-			  			if (book.author != null)
-			  			{
-			  				<strong>output("List of author:")</strong>
-			  						for (value: Author in book.author)
-			  						{
-			  							par{output(value.name)}
-			  						}
-			  				}
-			  						
-			  			
-		 				navigate(editBook(book)){output("Edit")}
-			  		</div>
-		  		</div>
-			}		
-			
-			define page createAuthor() {
-			init { }
-			var author:= Author{};
-			main
-			define body(){
-				section {
-					header {"Create New Author"}
-					form{
-						
-						
-						par{ label("name "){ input(author.name) } }			
-						
-						par{ label("age "){ input(author.age) } }			
-						
-						submit create(author) {"Create" }
-					}
-				}
-			}
-			
-			action create(author : Author)
-			{
-				
-				author.save();
-				log("AuthorCreation Log: " + author);
-				message("Author has been created successfully.");				
-				
-				return createAuthor(); 
-			}
-			}
-			
-					define authorDetail(author: Author)
-					{
-						<div class="ui-widget ui-widget-container" >
-							<h3 class="ui-widget ui-widget-header  ui-corner-top">output(author.name)</h3>
+									par{ label("price "){ input(book.price) } }
 							
-							<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
-					  		
-					  			
-					  			
-				 				navigate(editAuthor(author)){output("Edit")}
-					  		</div>
-				  		</div>
-					}		
-					
-					
-			
-					
-					
-			
-	
-			
-			define page editAuthor(author : Author) {
-			init { }
-			main
-			define body(){
-				section {
-					header {"Edit Author"}
-					form{
-						
-						
-						par{ label("name "){ input(author.name) } }			
-						
-						par{ label("age "){ input(author.age) } }			
-						
-						submit create(author) {"Create" }
-					}
-				}
-			}
-			
-			action create(author : Author)
-			{
-				
-				author.save();
-				log("AuthorCreation Log: " + author);
-				message("Author has been created successfully.");				
-				
-				return authorProfile(author); 
-			}
-			}
-			
-	define page createGift() {
-	init { }
-	var gift:= Gift{};
-	main
-	define body(){
-		section {
-			header {"Create New Gift"}
-			form{
-				
-				
-				par{ label("dueDate "){ input(gift.dueDate) } }			
-				
-				par{ label("owner "){ input(gift.owner) } }			
-				
-				submit create(gift) {"Create" }
-			}
-		}
-	}
-	
-	action create(gift : Gift)
-	{
-		
-		gift.save();
-		log("GiftCreation Log: " + gift);
-		message("Gift has been created successfully.");				
-		
-		return createGift(); 
-	}
-	}
-	
-			define giftDetail(gift: Gift)
-			{
-				<div class="ui-widget ui-widget-container" >
-					<h3 class="ui-widget ui-widget-header  ui-corner-top">output(gift.name)</h3>
-					
-					<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
-			  		
-			  			
-			  			
-			  			par {output("dueDate : " + gift.dueDate) }	
-			  			
-			  				  				
-			  			
-			  			if (gift.owner != null)
-			  			{
-			  			
-			  					  				par{	output("owner : " + gift.owner.name)}	
-			  				  		}
-			  				  				
-			  			
-		 				navigate(editGift(gift)){output("Edit")}
-			  		</div>
-		  		</div>
-			}		
-			
-			define page createOwner() {
-			init { }
-			var owner:= Owner{};
-			main
-			define body(){
-				section {
-					header {"Create New Owner"}
-					form{
-						
-						
-						par{ label("name "){ input(owner.name) } }			
-						
-						par{ label("age "){ input(owner.age) } }			
-						
-						submit create(owner) {"Create" }
-					}
-				}
-			}
-			
-			action create(owner : Owner)
-			{
-				
-				owner.save();
-				log("OwnerCreation Log: " + owner);
-				message("Owner has been created successfully.");				
-				
-				return createOwner(); 
-			}
-			}
-			
-					define ownerDetail(owner: Owner)
-					{
-						<div class="ui-widget ui-widget-container" >
-							<h3 class="ui-widget ui-widget-header  ui-corner-top">output(owner.name)</h3>
+									par{ label("name "){ input(book.name) } }
 							
-							<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
-					  		
-					  			
-					  			
-				 				navigate(editOwner(owner)){output("Edit")}
-					  		</div>
-				  		</div>
-					}		
-					
-					
-			
-					
-					
-			
-	
-			
-			define page editOwner(owner : Owner) {
-			init { }
-			main
-			define body(){
-				section {
-					header {"Edit Owner"}
-					form{
-						
-						
-						par{ label("name "){ input(owner.name) } }			
-						
-						par{ label("age "){ input(owner.age) } }			
-						
-						submit create(owner) {"Create" }
+							par{ label("genre "){ input(book.genre) } }
+							
+							
+									par{ label("publicationDate "){ input(book.publicationDate) } }
+							
+							par{ label("author "){ input(book.author) } }
+							
+							submit create(book) {"Create" }
+						}
 					}
 				}
-			}
-			
-			action create(owner : Owner)
-			{
 				
-				owner.save();
-				log("OwnerCreation Log: " + owner);
-				message("Owner has been created successfully.");				
+							action create(book : Book)
+							{
 				
-				return ownerProfile(owner); 
-			}
-			}
-			
-	define page createCD() {
-	init { }
-	var cd:= CD{};
-	main
-	define body(){
-		section {
-			header {"Create New CD"}
-			form{
+								book.save();
+								log("BookCreation Log: " + book);
+								message("Book has been created successfully.");
 				
-				par{ label("dueDate "){ input(cd.dueDate) } }			
+								return createBook();
+							}
+						}
 				
-				par{ label("owner "){ input(cd.owner) } }			
+						define bookDetail(book: Book)
+						{
+							<div class="ui-widget ui-widget-container" >
+								<h3 class="ui-widget ui-widget-header  ui-corner-top">output(book.name)</h3>
 				
+								<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
 				
-				par{ label("len "){ input(cd.len) } }			
-				
-				par{ label("type "){ input(cd.type) } }			
-				
-				par{ label("producer "){ input(cd.producer) } }			
-				
-				submit create(cd) {"Create" }
-			}
-		}
-	}
-	
-	action create(cd : CD)
-	{
-		
-		cd.save();
-		log("CDCreation Log: " + cd);
-		message("CD has been created successfully.");				
-		
-		return createCD(); 
-	}
-	}
-	
-			define cdDetail(cd: CD)
-			{
-				<div class="ui-widget ui-widget-container" >
-					<h3 class="ui-widget ui-widget-header  ui-corner-top">output(cd.name)</h3>
+						  			
+						  			par {output("price : " + book.price) }
+						  			
+						  			
+						  			
+						  			par {output("name : " + book.name) }
+						  			
+						  			
+						  			
+						  			
+						  			par {output("publicationDate : " + book.publicationDate) }
+						  			
+						  			
+						  			
+						  			if (book.author != null)
+						  			{
+						  				<strong>output("List of author:")</strong>
+						  						for (value: Author in book.author)
+						  						{
+						  							par{output(value.name)}
+						  						}
+						  				}
+						  			
+						  			
+					 				navigate(bookProfile(book)){output(">>See more information")}
+						  		</div>
+					  		</div>
+						}
+						
+						define page bookProfile(book: Book)
+						{
+							init {}
+							main()
+							define body()
+							{
+								section
+								{
+									header {output(book.name)}
+									form
+									{
+										<div class="ui-widget ui-widget-container" >
+											<h3 class="ui-widget ui-widget-header  ui-corner-top">output(book.name)</h3>
 					
-					<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
-			  		
-			  			
-			  			par {output("dueDate : " + cd.dueDate) }	
-			  			
-			  				  				
-			  			
-			  			if (cd.owner != null)
-			  			{
-			  			
-			  					  				par{	output("owner : " + cd.owner.name)}	
-			  				  		}
-			  				  				
-			  			
-			  			
-			  			par {output("type : " + cd.type) }	
-			  			
-			  				  				
-			  			
-		 				navigate(editCD(cd)){output("Edit")}
-			  		</div>
-		  		</div>
-			}		
-			
-			
-	
-			
-			
-	
-	
-	define page editSellable(sellable : Sellable) {
-	init { }
-	main
-	define body(){
-		section {
-			header {"Edit Sellable"}
-			form{
+											<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+					
+							  				
+							  				par {output("price : " + book.price) }
+							  				
+							  				par {output("name : " + book.name) }
+							  				
+							  				
+							  				par {output("publicationDate : " + book.publicationDate) }
+							  				
+							  				if (book.author != null)
+							  				{
+							  					<strong>output("List of author:")</strong>
+							  							for (value: Author in book.author)
+							  							{
+							  								par{output(value.name)}
+							  							}
+							  					}
+							  				
+						 					navigate(editBook(book)){output("Edit")}
+							  				</div>
+					  					</div>
+									}
+								}
+							}
+						}
+						
+						define page createAuthor() {
+						init { }
+						var author:= Author{};
+						main
+						define body(){
+							section {
+								header {"Create New Author"}
+								form{
+									
+									
+											par{ label("name "){ input(author.name) } }
+									
+											par{ label("age "){ input(author.age) } }
+									
+									submit create(author) {"Create" }
+								}
+							}
+						}
+						
+									action create(author : Author)
+									{
+						
+										author.save();
+										log("AuthorCreation Log: " + author);
+										message("Author has been created successfully.");
+						
+										return createAuthor();
+									}
+								}
+						
+								define authorDetail(author: Author)
+								{
+									<div class="ui-widget ui-widget-container" >
+										<h3 class="ui-widget ui-widget-header  ui-corner-top">output(author.name)</h3>
+						
+										<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+						
+								  			
+								  			
+							 				navigate(authorProfile(author)){output(">>See more information")}
+								  		</div>
+							  		</div>
+								}
+								
+								define page authorProfile(author: Author)
+								{
+									init {}
+									main()
+									define body()
+									{
+										section
+										{
+											header {output(author.name)}
+											form
+											{
+												<div class="ui-widget ui-widget-container" >
+													<h3 class="ui-widget ui-widget-header  ui-corner-top">output(author.name)</h3>
+							
+													<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+							
+									  				
+									  				
+								 					navigate(editAuthor(author)){output("Edit")}
+									  				</div>
+							  					</div>
+											}
+										}
+									}
+								}
+								
+								
+						
+								
+						
+						
+				
+						
+						define page editAuthor(author : Author) {
+						init { }
+						main
+						define body(){
+							section {
+								header {"Edit Author"}
+								form{
+									
+									
+											par{ label("name "){ input(author.name) } }
+									
+											par{ label("age "){ input(author.age) } }
+									
+									submit edit(author) {"Edit" }
+								}
+							}
+						}
+						
+									action edit(author : Author)
+									{
+						
+										author.save();
+										log("AuthorCreation Log: " + author);
+										message("Author has been changed successfully.");
+						
+										return authorProfile(author);
+									}
+								}
+				
+				define page createCD() {
+				init { }
+				var cd:= CD{};
+				main
+				define body(){
+					section {
+						header {"Create New CD"}
+						form{
+							
+									par{ label("dueDate "){ input(cd.dueDate) } }
+							
+							par{ label("owner "){ input(cd.owner) } }
+							
+							
+									par{ label("len "){ input(cd.len) } }
+							
+									par{ label("type "){ input(cd.type) } }
+							
+									par{ label("producer "){ input(cd.producer) } }
+							
+							submit create(cd) {"Create" }
+						}
+					}
+				}
+				
+							action create(cd : CD)
+							{
+				
+								cd.save();
+								log("CDCreation Log: " + cd);
+								message("CD has been created successfully.");
+				
+								return createCD();
+							}
+						}
+				
+						define cdDetail(cd: CD)
+						{
+							<div class="ui-widget ui-widget-container" >
+								<h3 class="ui-widget ui-widget-header  ui-corner-top">output(cd.name)</h3>
+				
+								<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+				
+						  			
+						  			par {output("dueDate : " + cd.dueDate) }
+						  			
+						  			
+						  			
+						  			if (cd.owner != null)
+						  			{
+						  			
+						  					  				par{	output("owner : " + cd.owner.name)}
+						  				  		}
+						  			
+						  			
+						  			
+						  			par {output("type : " + cd.type) }
+						  			
+						  			
+						  			
+					 				navigate(cdProfile(cd)){output(">>See more information")}
+						  		</div>
+					  		</div>
+						}
+						
+						define page cdProfile(cd: CD)
+						{
+							init {}
+							main()
+							define body()
+							{
+								section
+								{
+									header {output(cd.name)}
+									form
+									{
+										<div class="ui-widget ui-widget-container" >
+											<h3 class="ui-widget ui-widget-header  ui-corner-top">output(cd.name)</h3>
+					
+											<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+					
+							  				
+							  				par {output("dueDate : " + cd.dueDate) }
+							  				
+							  				if (cd.owner != null)
+							  				{
+							  					par{	output("owner : " + cd.owner.name)}
+							  					}
+							  				
+							  				
+							  				par {output("len : " + cd.len) }
+							  				
+							  				par {output("type : " + cd.type) }
+							  				
+						 					navigate(editCD(cd)){output("Edit")}
+							  				</div>
+					  					</div>
+									}
+								}
+							}
+						}
+						
+						
+				
+						
 				
 				
-				par{ label("price "){ input(sellable.price) } }			
 				
-				par{ label("name "){ input(sellable.name) } }			
+				define page editBook(book : Book) {
+				init { }
+				main
+				define body(){
+					section {
+						header {"Edit Book"}
+						form{
+							
+									par{ label("price "){ input(book.price) } }
+							
+									par{ label("name "){ input(book.name) } }
+							
+							par{ label("genre "){ input(book.genre) } }
+							
+							
+									par{ label("publicationDate "){ input(book.publicationDate) } }
+							
+							par{ label("author "){ input(book.author) } }
+							
+							submit edit(book) {"Edit" }
+						}
+					}
+				}
 				
-				par{ label("genre "){ input(sellable.genre) } }			
+							action edit(book : Book)
+							{
 				
-				submit create(sellable) {"Create" }
-			}
-		}
-	}
-	
-	action create(sellable : Sellable)
-	{
-		
-		sellable.save();
-		log("SellableCreation Log: " + sellable);
-		message("Sellable has been created successfully.");				
-		
-		return sellableProfile(sellable); 
-	}
-	}
-	define page editBook(book : Book) {
-	init { }
-	main
-	define body(){
-		section {
-			header {"Edit Book"}
-			form{
+								book.save();
+								log("BookCreation Log: " + book);
+								message("Book has been changed successfully.");
 				
-				par{ label("price "){ input(book.price) } }			
+								return bookProfile(book);
+							}
+						}
+				define page editCD(cd : CD) {
+				init { }
+				main
+				define body(){
+					section {
+						header {"Edit CD"}
+						form{
+							
+									par{ label("dueDate "){ input(cd.dueDate) } }
+							
+							par{ label("owner "){ input(cd.owner) } }
+							
+							
+									par{ label("len "){ input(cd.len) } }
+							
+									par{ label("type "){ input(cd.type) } }
+							
+									par{ label("producer "){ input(cd.producer) } }
+							
+							submit edit(cd) {"Edit" }
+						}
+					}
+				}
 				
-				par{ label("name "){ input(book.name) } }			
+							action edit(cd : CD)
+							{
 				
-				par{ label("genre "){ input(book.genre) } }			
+								cd.save();
+								log("CDCreation Log: " + cd);
+								message("CD has been changed successfully.");
 				
-				
-				par{ label("publicationDate "){ input(book.publicationDate) } }			
-				
-				par{ label("author "){ input(book.author) } }			
-				
-				submit create(book) {"Create" }
-			}
-		}
-	}
-	
-	action create(book : Book)
-	{
-		
-		book.save();
-		log("BookCreation Log: " + book);
-		message("Book has been created successfully.");				
-		
-		return bookProfile(book); 
-	}
-	}
-	define page editGift(gift : Gift) {
-	init { }
-	main
-	define body(){
-		section {
-			header {"Edit Gift"}
-			form{
-				
-				
-				par{ label("dueDate "){ input(gift.dueDate) } }			
-				
-				par{ label("owner "){ input(gift.owner) } }			
-				
-				submit create(gift) {"Create" }
-			}
-		}
-	}
-	
-	action create(gift : Gift)
-	{
-		
-		gift.save();
-		log("GiftCreation Log: " + gift);
-		message("Gift has been created successfully.");				
-		
-		return giftProfile(gift); 
-	}
-	}
-	define page editCD(cd : CD) {
-	init { }
-	main
-	define body(){
-		section {
-			header {"Edit CD"}
-			form{
-				
-				par{ label("dueDate "){ input(cd.dueDate) } }			
-				
-				par{ label("owner "){ input(cd.owner) } }			
-				
-				
-				par{ label("len "){ input(cd.len) } }			
-				
-				par{ label("type "){ input(cd.type) } }			
-				
-				par{ label("producer "){ input(cd.producer) } }			
-				
-				submit create(cd) {"Create" }
-			}
-		}
-	}
-	
-	action create(cd : CD)
-	{
-		
-		cd.save();
-		log("CDCreation Log: " + cd);
-		message("CD has been created successfully.");				
-		
-		return cdProfile(cd); 
-	}
-	}
-	section leftcategoriesmenu
+								return cdProfile(cd);
+							}
+						}
+				section leftcategoriesmenu
 
 				define leftsidemenu(){
-		
-					<div id="accordion"> 
+
+					<div id="accordion">
 						
 						
-								<div> 
-									<h3><a href="#">output("By Product")</a></h3> 
 									<div>
-													
-										<ul>
-											
-											<li> navigate(listByBook()){ output("Book")} </li>
-											
-											<li> navigate(listByCD()){ output("CD")} </li>
-											
-										</ul>
-									</div> 
-								</div> 
+										<h3><a href="#">output("By Product")</a></h3>
+										<div>
+						
+											<ul>
+												
+												<li> navigate(listByBook()){ output("Book")} </li>
+												
+												<li> navigate(listByCD()){ output("CD")} </li>
+												
+											</ul>
+										</div>
+									</div>
 						
 						
 						
-								<div> 
-									<h3><a href="#">output("By Genre")</a></h3> 
 									<div>
-													
-										<ul>
-											for(genre :Genre ){
-												<li> navigate(listByGenre(genre)){ output(genre)} </li>
-											}
-										</ul>
-									</div> 
-								</div> 
+										<h3><a href="#">output("By Genre")</a></h3>
+										<div>
+						
+											<ul>
+												for(genre :Genre ){
+													<li> navigate(listByGenre(genre)){ output(genre)} </li>
+												}
+											</ul>
+										</div>
+									</div>
 						
 						
-								<div> 
-									<h3><a href="#">output("By Owner")</a></h3> 
 									<div>
-													
-										<ul>
-											for(owner :Owner ){
-												<li> navigate(listByOwner(owner)){ output(owner)} </li>
-											}
-										</ul>
-									</div> 
-								</div> 
+										<h3><a href="#">output("By Owner")</a></h3>
+										<div>
 						
-					</div> 
-				}		
-				
+											<ul>
+												for(owner :Owner ){
+													<li> navigate(listByOwner(owner)){ output(owner)} </li>
+												}
+											</ul>
+										</div>
+									</div>
+						
+					</div>
+				}
+
 				
 				
 				define page listByBook(){
@@ -790,8 +578,8 @@ application exampleapp
 							for(entity :Book)
 							{
 									bookDetail(entity)
-							}						
-						</div> 
+							}
+						</div>
 					}
 				}
 				
@@ -802,8 +590,8 @@ application exampleapp
 							for(entity :CD)
 							{
 									cdDetail(entity)
-							}						
-						</div> 
+							}
+						</div>
 					}
 				}
 				
@@ -814,11 +602,6 @@ application exampleapp
 					define body(){
 						<div id="listAccordion">
 							
-							for(entity :Book where entity.genre == value)
-							{
-								bookDetail(entity) 
-							}
-							
 						</div>
 					}
 				}
@@ -828,13 +611,9 @@ application exampleapp
 					define body(){
 						<div id="listAccordion">
 							
-							for(entity :CD where entity.owner == value)
-							{
-								cdDetail(entity) 
-							}
-							
 						</div>
 					}
 				}
 				
 				
+

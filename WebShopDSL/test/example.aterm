@@ -5,37 +5,43 @@ Shop(
 , []
 , [ BasicProduct(
       "Sellable"
-    , [ SimpleProperty("price", Float(), [])
+    , [ SimpleProperty(
+          "price"
+        , Float()
+        , Some(AttributeList([], Attribute("summary", "\"true\"")))
+        )
       , SimpleProperty(
           "name"
         , String()
-        , [AttributeList([], Attribute("summary", "\"true\""))]
+        , Some(AttributeList([], Attribute("summary", "\"true\"")))
         )
       , ComplexProperty(
           "genre"
         , ComplexType(
             "Genre"
-          , [SimpleProperty("name", String(), []), SimpleProperty("desc", String(), [])]
+          , [SimpleProperty("name", String(), None()), SimpleProperty("desc", String(), None())]
           )
-        , []
+        , None()
         )
       ]
     )
   , Product(
       "Book"
-    , ["Sellable"]
+    , Some("Sellable")
     , [ SimpleProperty(
           "publicationDate"
         , Date()
-        , [AttributeList([], Attribute("summary", "\"true\""))]
+        , Some(AttributeList([], Attribute("summary", "\"true\"")))
         )
       , ListOfComplex(
           "author"
         , ComplexType(
             "Author"
-          , [SimpleProperty("name", String(), []), SimpleProperty("age", Int(), [])]
+          , [SimpleProperty("name", String(), None()), SimpleProperty("age", Int(), None())]
           )
-        , []
+        , Some(
+            AttributeList([Attribute("summary", "\"true\"")], Attribute("navigable", "\"true\""))
+          )
         )
       ]
     )
@@ -44,32 +50,32 @@ Shop(
     , [ SimpleProperty(
           "dueDate"
         , Date()
-        , [AttributeList([], Attribute("summary", "\"true\""))]
+        , Some(AttributeList([], Attribute("summary", "\"true\"")))
         )
       , ComplexProperty(
           "owner"
         , ComplexType(
             "Owner"
-          , [SimpleProperty("name", String(), []), SimpleProperty("age", Int(), [])]
+          , [SimpleProperty("name", String(), None()), SimpleProperty("age", Int(), None())]
           )
-        , [AttributeList([], Attribute("summary", "\"true\""))]
+        , Some(AttributeList([], Attribute("summary", "\"true\"")))
         )
       ]
     )
   , Product(
       "CD"
-    , ["Gift"]
+    , Some("Gift")
     , [ SimpleProperty(
           "len"
         , Int()
-        , [AttributeList([], Attribute("title", "\"true\""))]
+        , Some(AttributeList([], Attribute("title", "\"true\"")))
         )
       , SimpleProperty(
           "type"
         , String()
-        , [AttributeList([], Attribute("summary", "\"true\""))]
+        , Some(AttributeList([], Attribute("summary", "\"true\"")))
         )
-      , SimpleProperty("producer", String(), [])
+      , SimpleProperty("producer", String(), None())
       ]
     )
   ]
