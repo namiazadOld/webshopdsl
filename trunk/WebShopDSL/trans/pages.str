@@ -230,12 +230,19 @@ rules
 		} ]
 		with varname:= <lower-case>name
 		
-		fieldProfileUI(|varname) : a@SimpleProperty(propName, type, None()) -> ""
+		fieldProfileUI(|varname) : a@SimpleProperty(propName, type, None()) -> $[
+			par {output("[propName] : " + [varname].[propName]) }
+		]
 		fieldProfileUI(|varname) : a@SimpleProperty(propName, type, Some(attr*)) -> $[
 			par {output("[propName] : " + [varname].[propName]) }
 		]
 
-		fieldProfileUI(|varname) : a@ComplexProperty(propName, type, None()) -> ""
+		fieldProfileUI(|varname) : a@ComplexProperty(propName, type, None()) -> $[
+			if ([varname].[propName] != null)
+			{
+				par{	output("[propName] : " + [varname].[propName].name)}
+	  		}
+	  	]
 		fieldProfileUI(|varname) : a@ComplexProperty(propName, type, Some(attr*)) -> $[
 			if ([varname].[propName] != null)
 			{
@@ -243,7 +250,18 @@ rules
 	  		}
 		]
 		
-		fieldProfileUI(|varname) : a@ListOfComplex(propName, type, None()) -> ""
+		fieldProfileUI(|varname) : a@ListOfComplex(propName, ComplexType(propType, prop*), None()) ->  $[
+			if ([varname].[propName] != null)
+			{
+				<strong>output("List of [propName]:")</strong>
+  					for ([value]: [propType] in [varname].[propName])
+  					{
+  						par{output([value].name)}
+  					}
+	  		}
+		]
+		with value:= $[value]
+		
 		fieldProfileUI(|varname) : a@ListOfComplex(propName, ComplexType(propType, prop*), Some(attr*)) -> $[
 			if ([varname].[propName] != null)
 			{
