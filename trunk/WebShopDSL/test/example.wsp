@@ -7,7 +7,7 @@ shop exampleapp
 	
 	basic product type Sellable
 	{
-		price : Float
+		price : Float (summary : "true" ) 
 		name : String (summary : "true" ) 
 		genre : Genre{
 			name : String
@@ -23,7 +23,7 @@ shop exampleapp
 			name : String
 			age : Int
 
-		}(summary : "true") 
+		}(summary : "true", navigable : "true") 
 	}
 
 	basic product type Gift {
