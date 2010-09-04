@@ -28,7 +28,8 @@ Shop(
   , Product(
       "Book"
     , Some("Sellable")
-    , [ SimpleProperty(
+    , [ SimpleProperty("publicationName", String(), None())
+      , SimpleProperty(
           "publicationDate"
         , Date()
         , Some(AttributeList([], Attribute("summary", "\"true\"")))
@@ -37,7 +38,13 @@ Shop(
           "author"
         , ComplexType(
             "Author"
-          , [SimpleProperty("name", String(), None()), SimpleProperty("age", Int(), None())]
+          , [ SimpleProperty(
+                "name"
+              , String()
+              , Some(AttributeList([], Attribute("summary", "\"true\"")))
+              )
+            , SimpleProperty("age", Int(), None())
+            ]
           )
         , Some(
             AttributeList([Attribute("summary", "\"true\"")], Attribute("navigable", "\"true\""))

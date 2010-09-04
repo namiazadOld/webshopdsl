@@ -91,6 +91,7 @@ application exampleapp
 				
 				
 				entity Book: Sellable {
+					publicationName :: String
 					publicationDate :: Date
 					author->Set<Author>(inverse = Author.bookList)
 				}
@@ -138,6 +139,8 @@ application exampleapp
 							
 							par{ label("genre "){ input(book.genre) } }
 							
+							
+									par{ label("publicationName "){ input(book.publicationName) } }
 							
 									par{ label("publicationDate "){ input(book.publicationDate) } }
 							
@@ -216,6 +219,13 @@ application exampleapp
 							  				
 							  				par {output("name : " + book.name) }
 							  				
+							  				if (book.genre != null)
+							  				{
+							  					par{	output("genre : " + book.genre.name)}
+							  					}
+							  				
+							  				
+							  				par {output("publicationName : " + book.publicationName) }
 							  				
 							  				par {output("publicationDate : " + book.publicationDate) }
 							  				
@@ -275,6 +285,10 @@ application exampleapp
 						
 								  			
 								  			
+								  			par {output("name : " + author.name) }
+								  			
+								  			
+								  			
 							 				navigate(authorProfile(author)){output(">>See more information")}
 								  		</div>
 							  		</div>
@@ -297,6 +311,10 @@ application exampleapp
 													<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
 							
 									  				
+									  				
+									  				par {output("name : " + author.name) }
+									  				
+									  				par {output("age : " + author.age) }
 									  				
 								 					navigate(editAuthor(author)){output("Edit")}
 									  				</div>
@@ -436,6 +454,8 @@ application exampleapp
 							  				
 							  				par {output("type : " + cd.type) }
 							  				
+							  				par {output("producer : " + cd.producer) }
+							  				
 						 					navigate(editCD(cd)){output("Edit")}
 							  				</div>
 					  					</div>
@@ -464,6 +484,8 @@ application exampleapp
 							
 							par{ label("genre "){ input(book.genre) } }
 							
+							
+									par{ label("publicationName "){ input(book.publicationName) } }
 							
 									par{ label("publicationDate "){ input(book.publicationDate) } }
 							
