@@ -35,11 +35,11 @@ rules
 			 	debug(!3);groupByTypeMapping := <leftMenuByType(|productType*)>groupByType;
 			 	debug(!4);groupByPropertyMapping:= <map(leftMenuByProperty);concat-strings> groupByProp* 
 
-		pg	:	BasicProduct(name, prop*) -> ""
+		pg	:	BasicProduct(name, prop*) -> <createPage(| None(), prop*)>name
 
 		pg	: 	Product(name, base, prop*) -> <createPage(| base, prop*)>name
 
-		pgEdit	:	BasicProduct(name, prop*) -> ""
+		pgEdit	:	BasicProduct(name, prop*) -> <editPage(| None(), prop*)>name
 
 		pgEdit	: 	Product(name, base, prop*) -> <editPage(| base, prop*)>name
 
@@ -156,7 +156,7 @@ rules
 			<div class="ui-widget ui-widget-container" >
 				<h3 class="ui-widget ui-widget-header  ui-corner-top">output([varname].name)</h3>
 
-				<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+				<div id="[varname]Summary" class="ui-widget ui-widget-content ui-corner-bottom">
 
 		  			[<baseCheck2(|varname)>base]
 		  			[detailsUI]
@@ -179,10 +179,11 @@ rules
 						<div class="ui-widget ui-widget-container" >
 							<h3 class="ui-widget ui-widget-header  ui-corner-top">output([varname].name)</h3>
 	
-							<div id="cdSummary" class="ui-widget ui-widget-content ui-corner-bottom">
+							<div id="[varname]Summary" class="ui-widget ui-widget-content ui-corner-bottom">
 	
 			  				[<baseCheckProfile(|varname)>base]
 			  				[profileUI]
+			  				[<inversePart(|varname)>name]
 		 					navigate(edit[name]([varname])){output("Edit")}
 			  				</div>
 	  					</div>
@@ -191,9 +192,13 @@ rules
 			}
 		}
 		
+		
+		
 		[<map(complexCRUDPages)>prop*]
 
 		[<map(complexEditPages)>prop*]
+		
+		[<inverseListPage>name]
 
 		]
 		with varname:= <lower-case>name;
@@ -201,7 +206,35 @@ rules
 			debug(!200);detailsUI := <map(fieldDetailsUI(|varname));concat-strings>prop*;
 			debug(!201);profileUI := <map(fieldProfileUI(|varname));concat-strings>prop*;
 			debug(!202)
-
+			
+		inversePart(|varname) : name -> $[par {navigate([lower][inverse]List([varname])){output("Related [inverse] list")}}]
+		where <eq>(<HasInverse>name, "True")
+		with 
+			inverse := <GetInverse>name;
+			lower := <lower-case>name
+		
+		inversePart(|varname) : name -> ""
+		
+		inverseListPage : name -> $[
+			define page [lower][inverse]List(entity : [name]){
+				main()
+				define body(){
+					<div id="listAccordion">
+						for(det :[inverse] in entity.[lower-inverse]List)
+						{
+							[lower-inverse]Detail(det)
+						}
+					</div>
+				}
+			}
+		]
+		where <eq>(<HasInverse>name, "True")
+		with 
+			inverse := <GetInverse>name;
+			lower := <lower-case>name;
+			lower-inverse := <lower-case>inverse
+			
+		inverseListPage : name -> ""
 
 		editPage(|base, prop*): name ->  $[
 			define page edit[name]([varname] : [name]) {
@@ -213,7 +246,7 @@ rules
 					form{
 						[<baseCheck(|varname)>base]
 						[<map(pg(|varname))>prop*]
-						submit edit([varname]) {"Edit" }
+						submit edit([varname]) {"Save" }
 					}
 				}
 			}
@@ -237,30 +270,36 @@ rules
 			par {output("[propName] : " + [varname].[propName]) }
 		]
 
-		fieldProfileUI(|varname) : a@ComplexProperty(propName, type, None()) -> $[
-			if ([varname].[propName] != null)
+		fieldProfileUI(|varname) : a@ComplexProperty(propName, ComplexType(propType, prop*), None()) -> $[
+	  		if ([varname].[propName] != null)
 			{
-				par{	output("[propName] : " + [varname].[propName].name)}
+				par{navigate([lower]Profile([varname].[propName])){output("[propName] : " + [varname].[propName].name)}}
 	  		}
 	  	]
-		fieldProfileUI(|varname) : a@ComplexProperty(propName, type, Some(attr*)) -> $[
+	  	with lower:= <lower-case>propType
+	  	
+		fieldProfileUI(|varname) : a@ComplexProperty(propName, ComplexType(propType, prop*), Some(attr*)) -> $[
 			if ([varname].[propName] != null)
 			{
-				par{	output("[propName] : " + [varname].[propName].name)}
+				par{navigate([lower]Profile([varname].[propName])){output("[propName] : " + [varname].[propName].name)}}
 	  		}
 		]
+		with lower:= <lower-case>propType
 		
 		fieldProfileUI(|varname) : a@ListOfComplex(propName, ComplexType(propType, prop*), None()) ->  $[
 			if ([varname].[propName] != null)
 			{
-				<strong>output("List of [propName]:")</strong>
+				<strong>output("	 [propName]:")</strong>
   					for ([value]: [propType] in [varname].[propName])
   					{
-  						par{output([value].name)}
+  						par{navigate([lower]Profile([value])){output([value].name)}}
   					}
 	  		}
 		]
-		with value:= $[value]
+		with 
+			value:= $[value];
+			lower:= <lower-case>propType
+			
 		
 		fieldProfileUI(|varname) : a@ListOfComplex(propName, ComplexType(propType, prop*), Some(attr*)) -> $[
 			if ([varname].[propName] != null)
@@ -268,11 +307,14 @@ rules
 				<strong>output("List of [propName]:")</strong>
   					for ([value]: [propType] in [varname].[propName])
   					{
-  						par{output([value].name)}
+  						par{navigate([lower]Profile([value])){output([value].name)}}
   					}
 	  		}
 		]
-		with value:= $[value]
+		with 
+			value:= $[value];
+			lower:= <lower-case>propType
+			
 
 		fieldDetailsUI(|varname) : a@SimpleProperty(propName, type, None()) -> ""
 				
@@ -312,8 +354,7 @@ rules
 		ruleComplex2(|varname, propName) : Attribute("summary", "\"true\"") -> $[
 			if ([varname].[propName] != null)
 			{
-
-		  				par{	output("[propName] : " + [varname].[propName].name)}
+				par{	output("[propName] : " + [varname].[propName].name)}
 	  		}
 
 		]
