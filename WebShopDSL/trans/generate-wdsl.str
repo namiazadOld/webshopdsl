@@ -6,15 +6,17 @@ module generate-wdsl
   			libstratego-aterm
   			lib/editor-common.generated
 			pages
+			accesscontrol
 	strategies
 
 		transform-to-wdsl:
         (selected, position, ast, path, project-path) -> (filename, result)
         with debug(!1);
           filename := <guarantee-extension(|"yml")> path;
+          debug(!1);accesscontrol := <map; acl> ast;
           debug(!2);entities := <map; ws-gen> ast;
           debug(!3);pages := <pagesui> ast
-       ; result := <debug(!"STRINGS");concat-strings>[entities, pages]
+       ; result := <debug(!"STRINGS");concat-strings>[entities, pages, accesscontrol]
 ;debug(!4)
 	rules
 		map = alltd(declare)
@@ -35,8 +37,9 @@ module generate-wdsl
 
 
 		scan= topdown(try(\ComplexType(name, prop*) -> $[chos]\))
+		acl = alltd(admin)
 		pagesui= alltd(pg)
-
+		
 		ws-gen = alltd(ws)
 		ws : Shop(shopName, with*, sells, basicType*, productType*, groupByType*, groupByProp*) ->
 			$[application [shopName]
@@ -113,7 +116,7 @@ define main(){
 //		 	testimonial()
 		 </div>
 		 <div id="footer">
-//		       		footer()
+		       		footer()
 			   <p />"powered by " <a href="http://webdsl.org">"WebDSL"</a><p />
 
 	     </div>   </div>
@@ -125,6 +128,11 @@ define mainheader() {
     image([value])
   }
 }
+
+define footer(){
+	signinoff()
+}	
+
 
 define body(){
 

@@ -216,6 +216,9 @@ rules
 		inversePart(|varname) : name -> ""
 		
 		inverseListPage : name -> $[
+			access control rules	
+			rule page [lower][inverse]List(entity : [name]) { true }
+			section [lower][inverse]ListPage
 			define page [lower][inverse]List(entity : [name]){
 				main()
 				define body(){
