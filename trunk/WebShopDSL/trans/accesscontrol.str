@@ -9,4 +9,319 @@ imports include/WebShopDSL
 
 rules
 	
-	admin: Shop(t, t, t, t, t, t, t) -> $[]
+	admin : Shop(shopName, with*, sells, basicType*, productType*, groupByType, groupByProp*) -> 
+		$[
+		[user-groups]
+		[user-pages]
+		access control rules		
+		  [access-control]
+
+		 [<listByAccessRules(|productType*)> groupByType] 
+		]
+		
+	with
+		user-groups:= <usergroups>"junk";
+		access-control := <map(admin);concat-strings>productType*;
+		user-pages := <userpages>"pages"
+		
+
+		listByAccessRules(|productType*) : None() -> $[]
+		listByAccessRules(|productType*) : Some(GroupByType()) -> $[
+			[<map(productListAccessRule);concat-strings>productType*]
+		]
+
+		productListAccessRule : BasicProduct(name, prop*) -> <map(basicTypeComplexPropsACL); concat-strings>prop* 
+		
+		productListAccessRule : Product(name, base, prop*) -> $[
+			rule page listBy[name]() { true }
+		]
+
+	basicTypeComplexPropsACL: ListOfComplex(name, ComplexType(typeName, prop*), attr*) ->$[
+		rule page listBy[typeName](value : [typeName]) { true }
+	] 
+
+	basicTypeComplexPropsACL: ComplexProperty(name, ComplexType(typeName, prop*), attr*) -> $[
+		 rule page listBy[typeName](value : [typeName]) { true }
+	]
+
+	basicTypeComplexPropsACL: SimpleProperty(name, type, attr*) -> $[]
+
+
+		admin	:	BasicProduct(name, prop*) -> $[
+			rule page create[name]() {isAdministrator() }
+			rule page edit[name]([varname] : [name]) { isAdministrator() }
+			[props-acl] 
+		]
+		with
+			varname:= <lower-case>name;
+			props-acl := <map(admin); concat-strings>prop*
+
+	admin	: 	Product(name, base, prop*) -> $[
+		 rule page create[name]() { isAdministrator() }
+		 rule page edit[name]([varname] : [name]) { isAdministrator() }
+		 rule page [varname]Profile([varname] : [name]) { true }
+	  	 [props-acl]			 
+	]
+	with 
+		props-acl := <map(admin); concat-strings>prop*;
+		varname:= <lower-case>name
+
+	admin: l@ListOfComplex(name, ComplexType(typeName, prop*), attr*) ->$[
+		 rule page create[typeName]() { isAdministrator() }
+		 rule page edit[typeName]([varname] : [typeName]) { isAdministrator() }
+		 rule page [varname]Profile([varname] : [typeName]) { true }
+	] 
+	with
+		varname := <lower-case> typeName
+
+	admin: l@ComplexProperty(name, ComplexType(typeName, prop*), attr*) -> $[
+		 rule page create[typeName]() { isAdministrator() }
+		 rule page edit[typeName]([varname] : [typeName]) { isAdministrator() }
+		 rule page [varname]Profile([varname] : [typeName]) { true }
+	]
+	with
+		varname := <lower-case> typeName
+
+	admin: l@SimpleProperty(name, type, attr*) -> $[]
+
+		
+		usergroups: name ->$[
+			enum Gender {maleGender("Male"), femaleGender("Female")}
+			
+			entity User {
+			    username  :: String (id, validate(isUniqueUser(this), "User already exist."))
+			    password  :: Secret
+			    firstname :: String 
+			    lastname  :: String
+			    name :: String := firstname + " " + lastname 
+			    gender    -> Gender(not null)
+			    birthdate :: Date
+			    isactive  :: Bool
+			    email     :: Email
+			    phoneno   :: String
+			    mobileno  :: String
+			    address1   :: String  
+			    address2   :: String  
+			    function signup() {
+			      this.password := this.password.digest();
+			      this.isactive := true;
+			      this.save();
+			      log("Sign Up Log: " + this);
+			      if( administratorsGroup.members.length == 0 ){
+			      	administratorsGroup.members.add(this);
+			      }else {
+			      	customerGroup.members.add(this);
+			      }
+			      message("Your registration has been done successfully.");
+			    }
+			  }
+
+			access control rules
+			  principal is User with credentials username, password
+			  rule template *(*) { true }	
+			  rule page root() { true }
+			  rule page login() { true } 
+			  rule page signup()   { !isCustomer() && !isShipper() && !isAdministrator() }
+			  rule page mypage()   { isCustomer() }
+			  rule page profile(user: User) { isAdministrator() || isCustomer() || isShipper()}
+			  rule page editProfile() { isAdministrator() || isCustomer() }
+			  rule ajaxtemplate signin()   { true }
+			    
+			 section authentication
+			
+			  function principal() : User { 
+			    return securityContext.principal;
+			  }
+			  
+			    function checkPassword(username : String, password : Secret) : Bool {
+			    var user := findUser(username.toLowerCase());
+			    return user != null && user.password.check(password);
+			  }
+			  
+			  function signin(username : String, password : Secret) : Bool {
+			    var user := findUser(username.toLowerCase());
+			    validate(user != null && user.password.check(password), 
+			             "That combination of username and password is not correct.");
+			    validate(user != null && user.isactive, 
+			             "Your account is disabled by administrator");
+			    securityContext.principal := user;  
+			    return true; 
+			  }  
+			  
+			  function signout() {
+			    securityContext.principal := null;
+			  }
+			  
+			  
+			  section forgot password
+			
+			  entity NewPassword {
+			    user -> User
+			    date :: DateTime
+			    used :: Bool
+			    function resetPassword(pw : Secret) {
+			      validate(!used, "This request is no longer valid");
+			      validate(user != null, "Error: resetPassword: user == null");
+			      user.password := pw.digest();
+			      used := true;
+			    }
+			  }
+			
+			  extend entity User {
+			    function newPassword() : NewPassword {
+			      var n := NewPassword{ user := this };
+			      n.save();
+			      return n;
+			    }
+			    function changePassword(password : Secret) {
+			      this.password := password.digest();
+			    }
+			  }
+			  
+			  section groups
+			
+			  entity Group {
+			    key     :: String (id)
+			    name    :: String
+			    members -> Set<User>
+			    function isMember(user : User) : Bool { return user in members; }
+			  }
+			  extend entity User {
+			    groups -> Set<Group> (inverse=Group.members)
+			  }
+			  
+			  
+			    var administratorsGroup := Group{ key := "administrators" name := "Administrators" }
+			    var customerGroup          := Group{ key := "customers"          name := "Customers"          }
+			    var shipperGroup       := Group{ key := "shippers"       name := "Shippers"       }
+			  
+			  
+			  function isAdministrator() : Bool {
+			    return principal() in administratorsGroup.members;
+			  }
+			  function isCustomer() : Bool {
+			    return principal() in customerGroup.members;
+			  }
+			  function isShipper() : Bool {
+			    return principal() in shipperGroup.members;
+			  }
+			  
+		]
+
+		userpages: name -> $[
+section changing password
+  
+  define changePassword(user : User) {
+    var password1 : Secret
+    var password2 : Secret
+    action change() {
+      validate(password1 == password2, "Passwords do not match.");
+      user.changePassword(password1);
+      user.save();
+      message("Your password has been changed.");
+    }
+    section{
+      header{"Change Password"}
+      form{
+        par{ label("Password: "       ){ input(password1) } }
+        par{ label("Repeat password: "){ input(password2) { validate(password1 == password2, "Passwords do not match.") } } }
+        action("Change password", change())
+      }
+    }
+  }
+  
+section login
+
+ define page login(){
+	init{ if(loggedIn()) { return root(); } }
+	 
+	main()
+	define body(){
+		signin()
+	}
+ } 
+
+  define signin() {
+    init{ if(loggedIn()) { return root(); } }
+    var username : String
+    var password : Secret
+    action doit(){ signin(username, password); if(isCustomer()){return mypage();}}
+    header{"Sign In"}
+    form{
+      par{ label("Username"){ input(username) } }
+      par{ label("Password"){ input(password) } }
+      par{ action("Sign in", doit())$[$id:=submit$]$ }
+    }
+    header{"Register"}
+    par{ "No account? " navigate(signup()){ "Register now" } }
+  }
+  
+  
+  define signoutLink(){
+  	actionLink("Signout", action{ signout(); return root(); })
+  }
+  
+  define signinLink() {
+//    action showForm() { replace(content, signin()); }
+//    form{ actionLink("Sign in", showForm())$[$ajax$]$ }
+    navigate(login()){"Login"}
+  }
+  
+  
+  define signinoff() {
+    if(securityContext.principal != null) { 
+       signoutLink() 
+    } else { 
+      signinLink()
+    }
+  }
+ 
+define page signup() {
+    var user := User{}
+    var password : Secret
+    main()
+    define body(){
+    
+      section{
+        header{"Sign Up"}
+        form{ 
+          par{ label("Username"){ input(user.username) } }
+          par{ label("Password"){ input(user.password) } }
+          par{ label("Confirm password"){ input(password) {
+                validate(password == user.password, "Passwords do not match!") } } }
+          par{ label("First Name"){ input(user.firstname) } }
+          par{ label("Last Name"){ input(user.lastname) } }
+          par{ label("Gender"){ input(user.gender) } }
+          par{ label("Birthday"){ input(user.birthdate) } }
+          par{ label("Email"){ input(user.email) } }
+          
+          par{ label("Address Street1"){ input(user.address1) } }
+          par{ label("Address Street2"){ input(user.address2) } }
+          par{ label("Phone Number"){ input(user.phoneno) } }
+          par{ label("Mobile Number"){ input(user.mobileno) } }
+//          par{ label("Please enter the text below: "){ captcha() } }
+          action("Sign Up", action{ user.signup(); return root(); }) 
+        }
+      }
+    }
+  }
+  
+section account management
+
+  define page mypage() {
+    init{ if(!loggedIn()) { return root(); } }
+    
+    main()
+    define body(){
+    }
+  }
+ 
+  define page profile(user: User){
+	init{ if(!loggedIn()) { return root(); } }
+	main
+	define body(){
+	}
+  }
+]
+		
+		
