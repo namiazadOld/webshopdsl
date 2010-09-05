@@ -187,6 +187,10 @@ rules
 		 					navigate(edit[name]([varname])){output("Edit")}
 			  				</div>
 	  					</div>
+	  					<div class="ui-widget ui-widget-container" >
+							<h3 class="ui-widget ui-widget-header  ui-corner-top">output("Comments")</h3>
+	
+	  					</div>
 					}
 				}
 			}
