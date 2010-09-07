@@ -151,6 +151,7 @@ define body(){
 		with rules (HasProduct: name -> "True" )
 
 		ws	:	BasicProduct(name, prop*) -> $[entity [name]{
+			name :: String
 			[<map(ws(|name));separate-by(|"\n");concat-strings>prop* ]
 		}
 		[<map(complexExtract(|name))>prop*]
@@ -159,8 +160,8 @@ define body(){
 
 		ws	:
 		  Product(name, optbase, prop*) ->     //[] [base]
-		$[entity [name]: [base] {
-			name :: String
+		$[entity [name] [colon] [base] {
+			[mybase]
 			price :: Float
 			
 			[properties]
@@ -168,13 +169,14 @@ define body(){
 		[complexproperties]
 		]
 		with debug(!"product rule");if <?None()> optbase
-		     then base := ""
-		     else Some(base) := optbase   // !optbase; ?[base]
+		     then base := ""; mybase:= "name :: String";colon:= ""
+		     else Some(base) := optbase;colon:= ":"; mybase:=""   // !optbase; ?[base]
 		     end
 		   ; properties := <map(ws(|name));separate-by(|"\n");concat-strings>prop*
            ; complexproperties := <map(complexExtract(|name))> prop*
 
 		complexExtract(|className): l@ListOfComplex(name, ComplexType(typeName, prop*), attr*) -> $[entity [typeName]{
+			name :: String
 			[<map(ws(|name));separate-by(|"\n");concat-strings>prop* ]
 			[result]
 		}
@@ -184,6 +186,7 @@ define body(){
 			debug(!500);result := [<inverseHelper(|className)>attr*]
 		
 		complexExtract(|className): l@ComplexProperty(name, ComplexType(typeName, prop*), attr*) -> $[entity [typeName]{
+			name :: String
 			[<map(ws(|name));separate-by(|"\n");concat-strings>prop* ]
 			[result]
 		}
