@@ -1,0 +1,168 @@
+module semantic-checking
+
+imports
+  
+  			include/WebShopDSL
+	  		libstratego-lib
+  			libstratego-gpp
+  			libstratego-aterm
+  			lib/editor-common.generated
+  			generate-wdsl
+  
+rules
+	
+	sc:
+		t -> t
+		with
+      <topdown(try(dc))> t
+    
+    //rule1--a product is defined but is not declared in sells clause
+    
+	dc: s@Sells([], p@ProductEntity(name)) -> s
+	with
+		debug(!4000);
+		<sellsFinder>p
+	
+	dc: s@Sells(p*, p@ProductEntity(name)) -> s
+	with
+		debug(!5000);
+		<sellsFinder>p;
+		<map(sellsFinder)>p*
+	
+	sellsFinder: p@ProductEntity(name) -> p
+	with rules (IsDefined : name -> "True") 
+	
+	constraint-error: p@Product(name, base, prop*) -> (p, $[Product '[name]' has not been declared in sells clause])
+	where not(<IsDefined>name)
+
+	//rule2--a product is declared in sells clause but is not defined
+
+	
+	
+	dc: p@Product(name, base, prop*) -> p
+	with debug(!5500)
+	with rules (IsDeclared : name -> "True")
+	with debug(!5600)
+	with rules (productDefinition: name -> p)
+	with <map(propLookup(|p))>prop*;
+		 <map(attrLookup)>prop*
+		 
+	
+	propLookup(|p): [] -> []
+	propLookup(|p): s@SimpleProperty(name, type, attr*) -> s
+	with rules (LookUp: name -> p)
+	
+	propLookup(|p): c@ComplexProperty(name, type, attr*) -> c
+	with rules (LookUp: name -> p)
+	
+	propLookup(|p): l@ListOfComplex(name, type, attr*) -> l
+	with rules (LookUp: name -> p)
+	
+	constraint-error: p@ProductEntity(name) -> (p, $[Product '[name]' has not been defined])
+	where not (<IsDeclared>name)	
+	
+	//rule3--group by property is applied for non existing property or is applied for property of non basic product or for non complex one
+	
+	dc: b@BasicProduct(name, prop*) -> b
+	with <map(basicProp(|name))>prop*
+	with rules (productDefinition: name -> b)
+	with <map(propLookup(|b))>prop*;
+		 <map(attrLookup)>prop*
+	
+	basicProp(|name): s@SimpleProperty(propName, type, prop) -> s
+	
+	basicProp(|name): c@ComplexProperty(propName, type, prop) -> c
+	with rules (IsComplexBasic : propName -> name)
+	
+	basicProp(|name): c@ListOfComplex(propName, type, prop) -> c
+	with rules (IsComplexBasic : propName -> name)
+	
+	constraint-error: g@GroupByProperty(className, propName) -> (g, $[Property '[className].[propName]' is not valid. Follow these posibilities: 1) it has not been declared. 2) it is not from base. 3) it has simple type.])
+	where not(<eq>(<IsComplexBasic>propName, className))
+	
+	//rule4--repeated product type
+	
+	constraint-error: p@Product(name, base, prop*) -> (p, $[Product '[name]' is defined more than once])
+	where not (<productDefinition> name => p)
+	
+	//rule5--repeated basic types
+	constraint-error: p@BasicProduct(name, prop*) -> (p, $[Basic product '[name]' is defined more than once])
+	where not (<productDefinition> name => p)
+	
+	//rule6--products without properties
+	constraint-error: p@Product(name, base, []) -> (p, $[Product '[name]' has no properties])
+	
+	//rule7--basic products without properties
+	constraint-error: b@BasicProduct(name, []) -> (b, $[Basic product '[name]' has no properties])
+	
+	//rule8--complex type without properties
+	constraint-error: c@ComplexType(name, []) -> (c, $[Complex type '[name]' has no properties])
+
+	//rule9--repeated properties
+	constraint-error: p@Product(name, base, prop*)->err
+	where err := <filter(constraint-property(|p))>prop*
+	where not(<not(?[])>err)
+	
+	constraint-property(|p):
+		SimpleProperty(name, type, attr*)->(name, $[Property '[name]' is defined more than once])
+		where not (<LookUp>name=>p)
+	
+	constraint-property(|p):
+		ComplexProperty(name, type, attr*)->(name, $[Property '[name]' is defined more than once])
+		where not (<LookUp>name=>p)
+	
+	constraint-property(|p):
+		ListOfComplex(name, type, attr*)->(name, $[Property '[name]' is defined more than once])
+		where not (<LookUp>name=>p)
+	
+	//rule 10--simple property does not have navigable value
+	dc: c@ComplexType(name, prop*)->c
+	with <map(attrLookup)>prop*
+	
+	attrLookup: s@SimpleProperty(name, type, None()) -> s
+	with rules (HasNotNavigable: s -> "True")
+	with 
+		debug (!8100)
+	
+	attrLookup: s@SimpleProperty(name, type, Some(attr*)) -> s
+	with
+		<nav-finder(|s)>attr*;
+		debug (!8200)
+	
+	nav-finder(|s): a@AttributeList(attr*, attr) -> a
+	with <map(nav-finder2(|s))>attr*;
+		 <nav-finder2(|s)>attr;
+		 debug(!8300)
+	
+	nav-finder2(|s): a@Attribute("navigable", t) -> a
+	with rules (HasNotNavigable: s -> "False")
+	with debug(!8400)
+	
+	nav-finder2(|s): a@Attribute(t1, t2) -> a
+	with rules (HasNotNavigable: s -> "True")
+	with debug(!8500)
+	 
+	attrLookup: c@ComplexProperty(name, type, attr*) -> c
+	attrLookup: l@ListOfComplex(name, type, attr*) -> l
+	
+	constraint-error: s@SimpleProperty(name, type, attr*) -> (s, $[Simple property cannot be navigable.])
+	where not(<HasNotNavigable>s=>"True")
+	
+	//rule 11--products should not have name and price properties since these are built in
+	constraint-error: s@SimpleProperty(name, type, attr*) -> (s, $[name property is built in.])
+	where (<eq>(name, "name"))
+	
+	constraint-error: s@SimpleProperty(name, type, attr*) -> (s, $[price property is built in.])
+	where (<eq>(name, "price"))
+	
+	constraint-error: s@ComplexProperty(name, type, attr*) -> (s, $[name property is built in.])
+	where (<eq>(name, "name"))
+	
+	constraint-error: s@ComplexProperty(name, type, attr*) -> (s, $[price property is built in.])
+	where (<eq>(name, "price"))
+	
+	constraint-error: s@ListOfComplex(name, type, attr*) -> (s, $[name property is built in.])
+	where (<eq>(name, "name"))
+	
+	constraint-error: s@ListOfComplex(name, type, attr*) -> (s, $[price property is built in.])
+	where (<eq>(name, "price"))
