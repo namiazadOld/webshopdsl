@@ -5,6 +5,7 @@ module generate-wdsl
   			libstratego-gpp
   			libstratego-aterm
   			lib/editor-common.generated
+  			order
 			pages
 			accesscontrol
 	strategies
@@ -15,8 +16,9 @@ module generate-wdsl
           filename := <guarantee-extension(|"yml")> path;
           debug(!1);accesscontrol := <map; acl> ast;
           debug(!2);entities := <map; ws-gen> ast;
-          debug(!3);pages := <pagesui> ast
-       ; result := <debug(!"STRINGS");concat-strings>[entities, pages, accesscontrol]
+          debug(!3);pages := <pagesui> ast;
+          debug(!4);order := <ordering> ast
+       ; result := <debug(!"STRINGS");concat-strings>[entities, pages, accesscontrol, order]
 ;debug(!4)
 	rules
 		map = alltd(declare)
@@ -39,6 +41,7 @@ module generate-wdsl
 		scan= topdown(try(\ComplexType(name, prop*) -> $[chos]\))
 		acl = alltd(admin)
 		pagesui= alltd(pg)
+		ordering= alltd(order)
 		
 		ws-gen = alltd(ws)
 		ws : Shop(shopName, with*, sells, basicType*, productType*, groupByType*, groupByProp*) ->
@@ -50,7 +53,8 @@ module generate-wdsl
 
 			]
 	    with props := <map(ws)> with*;debug(!"with done")
-	       ; producttypes := <map(ws <+ debug(!"ws failed on: ");fail)> productType*
+	       ; producttypes := <map(ws <+ debug(!"ws failed on: ");fail)> productType*;
+	         <ws>sells
 
 		ws : ShopProperty(prop, value) -> result
 		with result := <ws(|value)> prop
@@ -141,8 +145,10 @@ define body(){
 		ws(|value) : ShopTitle()	-> $[]
 
 
-	//	ws	:	Sells(items*, item) -> $[[<map(ws);separate-by(|"\n");concat-strings>items*]
-	//	 [<ws>item]]
+		ws	:	Sells(items*, item) -> (<map(ws)>items*, <ws>item)
+		
+		ws	:	ProductEntity(name)	-> ""
+		with rules (HasProduct: name -> "True" )
 
 		ws	:	BasicProduct(name, prop*) -> $[entity [name]{
 			[<map(ws(|name));separate-by(|"\n");concat-strings>prop* ]
@@ -154,6 +160,9 @@ define body(){
 		ws	:
 		  Product(name, optbase, prop*) ->     //[] [base]
 		$[entity [name]: [base] {
+			name :: String
+			price :: Float
+			
 			[properties]
 		}
 		[complexproperties]

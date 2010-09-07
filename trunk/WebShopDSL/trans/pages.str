@@ -21,6 +21,7 @@ rules
 					<div id="accordion">
 						[groupByTypeMapping]
 						[groupByPropertyMapping]
+						[adminmenu]
 					</div>
 				}
 
@@ -33,7 +34,8 @@ rules
 				debug(!1);createProductTypeMapping := <map(pg);concat-strings>productType*;
 			 	debug(!2);editProductTypeMapping:=<map(pgEdit);concat-strings>productType*;
 			 	debug(!3);groupByTypeMapping := <leftMenuByType(|productType*)>groupByType;
-			 	debug(!4);groupByPropertyMapping:= <map(leftMenuByProperty);concat-strings> groupByProp* 
+			 	debug(!4);groupByPropertyMapping:= <map(leftMenuByProperty);concat-strings> groupByProp*;
+			 	debug(!5); adminmenu := <leftMenuAdmin(|productType*)>"junk"
 
 		pg	:	BasicProduct(name, prop*) -> <createPage(| None(), prop*)>name
 
@@ -115,6 +117,7 @@ rules
 
 					<ul>
 						[<map(leftMenuByTypeContent);concat-strings> productType* ]
+						
 					</ul>
 				</div>
 			</div>
@@ -124,6 +127,35 @@ rules
 		leftMenuByTypeContent : Product(name, base, prop*) -> $[
 			<li> navigate(listBy[name]()){ output("[name]")} </li>
 		]
+		
+		leftMenuAdmin(|productType*)  : name ->  $[
+		if(isAdministrator()){
+			<div>
+				<h3><a href="#">output("Admin")</a></h3>
+				<div>
+
+					<ul>
+						[<map(leftMenuAdminMenuItem);concat-strings> productType*]
+					</ul>
+				</div>
+			</div>			
+		}
+		]
+		
+		leftMenuAdminMenuItem: BasicProduct(name, prop*) -> <map(leftMenuAdminMenuItem); concat-strings>prop*
+		leftMenuAdminMenuItem : Product(name, base, prop*) -> $[
+			<li> navigate(create[name]()){ output("New [name]")} </li>
+			[<map(leftMenuAdminMenuItem); concat-strings>prop*]
+		]	
+
+		leftMenuAdminMenuItem: ListOfComplex(name, ComplexType(typeName, prop*), attr*) -> 
+		$[<li> navigate(create[typeName]()){ output("New [typeName]")} </li>] 
+
+		leftMenuAdminMenuItem: ComplexProperty(name, ComplexType(typeName, prop*), attr*) -> 
+		$[<li> navigate(create[typeName]()){ output("New [typeName]")} </li>]
+
+		leftMenuAdminMenuItem: SimpleProperty(name, type, attr*) -> $[]
+
 
 		createPage(|base, prop*): name ->  $[define page create[name]() {
 			init { }
@@ -133,6 +165,7 @@ rules
 				section {
 					header {"Create New [name]"}
 					form{
+						[<namePriceCode(|varname)> name]
 						[baseCheckMapping]
 						[<map(pg(|varname))>prop*]
 						submit create([varname]) {"Create" }
@@ -184,6 +217,7 @@ rules
 			  				[<baseCheckProfile(|varname)>base]
 			  				[profileUI]
 			  				[<inversePart(|varname)>name]
+			  				[<orderButton(|varname)>name]
 		 					navigate(edit[name]([varname])){output("Edit")}
 			  				</div>
 	  					</div>
@@ -210,6 +244,27 @@ rules
 			debug(!200);detailsUI := <map(fieldDetailsUI(|varname));concat-strings>prop*;
 			debug(!201);profileUI := <map(fieldProfileUI(|varname));concat-strings>prop*;
 			debug(!202)
+
+		namePriceCode(|varname): name -> code
+		where <eq>(<HasProduct>name , "True")
+		with code:= $[
+			par{ label("Name "){ input([varname].name) } }
+			par{ label("Price "){ input([varname].price) } }
+		]
+		namePriceCode(|varname) : name -> ""
+			 		
+		orderButton(|varname) : name -> checkOut
+		where <eq>(<HasProduct>name , "True")
+		with checkOut:= $[
+			par{
+				submitlink action{
+					var order: Order := new[name]OrderItem([varname]);
+					return viewInProgressOrder(order);
+			          } { image("/images/addcart.png") }				
+			}
+		]
+		
+		orderButton(|varname) : name -> ""
 			
 		inversePart(|varname) : name -> $[par {navigate([lower][inverse]List([varname])){output("Related [inverse] list")}}]
 		where <eq>(<HasInverse>name, "True")

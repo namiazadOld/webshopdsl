@@ -1,0 +1,254 @@
+module order
+imports include/WebShopDSL
+  		libstratego-lib
+		libstratego-gpp
+		libstratego-aterm
+		lib/editor-common.generated
+		generate-wdsl
+		
+
+rules
+
+	order : Shop(shopName, with*, sells, basicType*, productType*, groupByType, groupByProp*) -> 
+		$[
+			[entitiesCode]
+			[<order>sells]
+		]
+		with 
+			entitiesCode:= <entities>"ents"
+			
+	order : Sells(ent*, ent) -> $[
+		[<map(order); concat-strings>ent*] 
+		[<order>ent]
+	] 
+
+	order : ProductEntity(name) ->  <orderPages>name
+		
+	entities : name -> $[
+		access control rules
+		 rule page viewInProgressOrder(order: Order) { isCustomer()}		 
+		 rule page payment(oder: Order) {isCustomer() }
+			
+			section orderingsystem
+			enum OrderStatus {statusInProgress("InProgress"), statusSubmitted("Submitted"), statusShipped("Shipped")}
+			
+		entity Order{
+		//    	code		:: String (id,validate(isUniqueOrder(this),"An order with that code already exists."))
+			orderItems	-> Set<OrderItem> (inverse = OrderItem.order)
+			date		:: Date
+			status		-> OrderStatus
+			customer	-> User (validate(isCustomer(), "The user should be a customer"))
+			extend function Order(){
+			  date := now();
+			}
+			function createOrder() {
+				this.save();
+			}
+		}
+
+		entity OrderItem{
+			count	::	Int
+			name	:: String
+			price 		:: Float
+			refererID 	:: String
+			order	->	Order
+			productType	:: String  
+		}
+define page viewInProgressOrder(order: Order){
+	main
+	define body(){
+		normalOrderItems(order)
+
+	}
+}
+
+define normalOrderItems(ord: Order){
+			par{output("Order creation date: " + ord.date + "\n")}
+			
+			if(ord.orderItems.length==0){
+				<table id="gradient-style">
+					<thead>
+						<tr>
+							<th scope="col">output("Currently there is no item in your list.")</th>
+					        </tr>
+					</thead>
+				</table>
+			
+			} else{
+			
+			
+			form{
+			output("Normal Orders")
+			<table id="gradient-style">
+				<thead>
+					<tr>
+						<th scope="col">output("Title")</th>
+						<th scope="col">output("Count")</th>
+						<th scope="col">output("Unit Price")</th>
+						<th scope="col">output("Type")</th>
+			        	<th scope="col">output("Delete")</th>
+				        	//<th scope="col">Rating</th>
+				        </tr>
+				</thead>
+						for(item:OrderItem in ord.orderItems ){
+						
+							row{
+								column{output( item.name)}
+								column{ input(item.count) } 
+								column{	output(	item.price)}
+								column{	output(	item.productType)}								
+								column{
+								submitlink action{
+							          ord.orderItems.remove(item);
+							          if(ord.orderItems.length ==0){
+							              // return mypage();
+							          }} { image("/images/remove.gif") }
+								}
+							
+							}
+						}
+						
+			</table>
+
+			
+			
+				submit checkout(ord) {"Check out" }
+			}
+	
+			 }		
+	
+		 action checkout(order: Order){
+		 	
+		 	return payment(order);
+		 } 
+ }
+
+ define page payment(order: Order){
+	var totalNormalPrice: Float :=0.0
+	var totalSpecialPrice: Float :=0.0
+	var total: Float :=0.0;
+	var discount: Float :=0.0;
+ 	main
+ 	define body(){
+	init{
+		
+		for(item : OrderItem in order.orderItems ){
+			
+			totalNormalPrice := totalNormalPrice + item.count.floatValue()* item.price;
+		}
+		
+		total :=  totalNormalPrice ;
+	}
+ 	output("Order to be checked out:")
+	
+		form{
+		<table id="gradient-style">
+			<thead>
+				<tr>
+					<th scope="col">output("Title")</th>
+					<th scope="col">output("Count")</th>
+					<th scope="col">output("Unit Price")</th>
+					<th scope="col">output("Type")</th>					
+		        </tr>
+			</thead>
+					for(item:OrderItem in order.orderItems ){
+					
+						row{
+							column{output( item.name)}
+							column{ output(item.count) } 
+							//validate((item.count <= item.book.hardCopyAvailableCount), 
+							//"Not enough available.")
+							column{	output(	item.price)}
+							column{	output(	item.productType)}						
+						}
+					}
+			<tfoot>
+				<tr>
+					<th scope="col">output("")</th>
+					<th scope="col">output("")</th>
+					<th scope="col">output(totalNormalPrice)</th>
+		        </tr>
+			</tfoot>
+					
+		</table>
+		par{output("Total price to be paid is " + total)}
+		submit pay(order){"Pay"}
+ 	}
+
+ }
+	 action pay(order: Order){
+	 	order.status := statusSubmitted;
+	 	order.date := now();
+	 	message("Payment successfully done. Your order will be delivered or emailed to your address.");
+		return mypage();
+	 }
+ }
+		
+		] 
+
+	
+	orderPages : name -> $[
+ function new[name]OrderItem(orderedItem: [name]): Order{
+	var user: User;
+ 	var inprogressOrder : List<Order>;
+ 	var prevItems : List<OrderItem> ;
+ 	var dt	: DateTime;
+ 	var dtstr : String;
+ 	var ostatus: OrderStatus;	
+ 	var ord : Order;
+ 	var item : OrderItem;
+ 	
+ 	
+ 	log("Starting init");
+ 	
+		 	
+ 		user :=  securityContext.principal;
+	 	inprogressOrder := from Order as o where o.customer = ~user;
+	 	 dt	 := now();
+	 	dtstr := dt.format("yyMMddHHmmss");
+	 	ostatus := statusInProgress	;
+	 	 ord	:= Order{};
+	 	  
+	 	 item := OrderItem{ refererID:= ord.id.toString() };
+
+ 		log("Fetching in progress order");
+ 		inprogressOrder :=$[$o | o : Order in inprogressOrder where o.status == statusInProgress $]$;
+ 		log("In progress order retrieved");
+ 		item.count := 1;
+ 		if(orderedItem != null){ 
+			item.name := orderedItem.name ;
+			item.price := orderedItem.price ;
+			item.refererID := orderedItem.id.toString();
+			item.productType := "[name]" 
+	 		log("In progress order is new");
+			
+		} 
+		
+	 	if (inprogressOrder.length == 0){
+		 	log("No in progress order");
+	 		
+	 		ord  := Order{ /*code := dtstr , */ customer := securityContext.principal , status := ostatus , 
+	 		date :=  dt };
+	 		ord.orderItems.add(item);
+	 		ord.customer := user;
+	 		log("In progress order is new");
+	 		ord.save();
+	 	}  
+	 	if(inprogressOrder.length == 1) {
+	 		log("Has in progress order");
+	 		ord  :=	inprogressOrder$[$0$]$;
+			if(orderedItem != null){
+		 		var matchingOrderItems := $[$oi | oi:OrderItem in ord.orderItems.list() where oi.refererID == orderedItem.id.toString()$]$;
+		 		if(matchingOrderItems.length == 0){
+		 			ord.orderItems.add(item);
+		 		}
+	 		}
+	 		
+		 	log("In progress order was created before");
+	 		
+	 	}
+	 	 
+ 	return ord;
+ }
+
+	]
