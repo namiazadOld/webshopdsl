@@ -1,51 +1,48 @@
 shop exampleapp
 {
-	logo "/images/logo.png"
-	title "Book Shop"
-	description "Best Shop"
-	sells { CD }
+	logo "/images/sportlogo.gif"
+	title "Sport Shop"
+	description "World Cup sport shop"
+	sells { Racket, Ball, Ski  }
 	
-	basic product type Sellable
+	basic product type SportEquipment
 	{
-		price : Float (summary : "true" ) 
-		name : String (summary : "true" ) 
-		genre : Genre{
-			name : String
+		brand : String ( summary : "true")
+		
+		sport : Sport{
 			desc : String
+			
 		}
 	}
 	
-	product type Book : Sellable
-	{
-		publicationName : String
-		publicationDate : Date (summary : "true" ) 
-		author[] : Author
-		{
-			name : String (summary : "true" )
-			age : Int
-
-		}(summary : "true", navigable : "true") 
+	product type Racket: SportEquipment {
+		cover: Cover {
+			color : String 
+			type : String
+		} ( navigable : "true", summary :"true" )
+		
+		gripStyle : String
+		color : String (summary : "true")
+		
 	}
 
-	basic product type Gift {
-		dueDate : Date (summary : "true" )
-		owner 	: Owner {
-			name : String
-			age : Int
-			
-		}(summary : "true") 
+	product type Ball: SportEquipment {
+		
+		size : Int (summary :"true")
+		texture : String (summary :"true")
+		year : Int
+		worldcups [] : WorldCup {
+			year : Int
+			country : String
+		} (navigable :"true")
 	}
-	product type CD : Gift
-	{
-		len : Int (title : "true")
-		type : String (summary : "true" )
-		producer : String
+	
+	product type Ski {
+		type : String
+		height : Int
+		
 	}
-
 	group by type
-	group by property Sellable.genre
-	group by property Gift.owner
-	
-	
+	group by property SportEquipment.sport
 	
 }
